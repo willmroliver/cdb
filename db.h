@@ -7,9 +7,9 @@
 struct db {
   char name[32];
   uint16_t size;
-  struct table* tables;
+  struct table *tables;
 };
 
-struct db* db_open(const char* path);
+struct db *db_open(const char *path);
 
 #endif
