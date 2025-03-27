@@ -12,4 +12,6 @@ struct db {
 
 struct db *db_open(const char *path);
 
+void db_table_new(struct db *d, char *tname, uint16_t size);
+
 #endif
