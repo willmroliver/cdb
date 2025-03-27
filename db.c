@@ -8,6 +8,10 @@
 #include <string.h>
 #include <stdlib.h>
 
+/*
+ * @todo  we should really implement serialization for a db schema as well.
+ *        then we could scrap the readdir() loop to determine allocation size.  
+*/
 struct db *db_open(const char *path) {
   struct stat st = { 0 };
   DIR *dir, *dirc;
