@@ -19,9 +19,9 @@ struct db *db_open(const char *path) {
   struct dirent *ent;
   struct table_schema *ts;
   struct col_schema *cs;
-  char buf[1024], *data;
+  size_t nitems;
+  char buf[COL_SCHEMA_SIZE > TABLE_SCHEMA_SIZE ? COL_SCHEMA_SIZE : TABLE_SCHEMA_SIZE];
   FILE *f;
-  size_t nbytes;
   struct table *tables;
   struct col *cols;
   struct db *db;
@@ -56,24 +56,22 @@ struct db *db_open(const char *path) {
       continue;
     }
 
-    nbytes = 0;
-    data = fgetln(f, &nbytes);
-
-    if (nbytes != TABLE_SCHEMA_SIZE + 1) {
+    nitems = fread(buf, TABLE_SCHEMA_SIZE + 1, 1, f);
+    if (nitems != 1) {
       continue;
     }
 
     ++it;
     tables[it] = *(struct table*)calloc(1, sizeof(struct table));
-    table_schema_read(ts, data);
+    table_schema_read(ts, buf);
     table_parse(tables + it, ts);
 
     tables[it].cols = (struct col*)calloc(tables[it].size, sizeof(struct col));
 
-    while ((data = fgetln(f, &nbytes)) && nbytes == COL_SCHEMA_SIZE + 1) {
+    while (fread(buf, COL_SCHEMA_SIZE + 1, 1, f) == 1) {
       ++ic;
       cols[ic] = *(struct col*)calloc(1, sizeof(struct col));
-      col_schema_read(cs, data);
+      col_schema_read(cs, buf);
       col_parse(cols + ic, cs);
     } 
   }
@@ -95,3 +93,9 @@ struct db *db_open(const char *path) {
 
   return db;
 }
+
+void db_table_new(struct db *d, char *tname, uint16_t size) {
+  d->tables = realloc(d->tables, d->size + 1);
+  d->tables[d->size] = *table_new(tname, size);
+}
+
