@@ -2,11 +2,11 @@
 #include <string.h>
 #include <stdlib.h>
 
-struct table_schema* table_schema_alloc() {
+struct table_schema *table_schema_alloc() {
   return (struct table_schema*)calloc(1, TABLE_SCHEMA_SIZE);
 }
 
-void table_schema_free(struct table_schema* s) {
+void table_schema_free(struct table_schema *s) {
   if (s != NULL) {
     free(s);
     s = NULL;
@@ -15,15 +15,15 @@ void table_schema_free(struct table_schema* s) {
   return;
 }
 
-void table_schema_read(struct table_schema* s, const void* src) {
+void table_schema_read(struct table_schema *s, const void *src) {
   memcpy(s, src, TABLE_SCHEMA_SIZE);
 }
 
-void table_schema_write(const struct table_schema* s, void* dest) {
+void table_schema_write(const struct table_schema *s, void *dest) {
   memcpy(dest, s, TABLE_SCHEMA_SIZE);
 }
 
-uint8_t table_serialize(const struct table* t, struct table_schema* s) {
+uint8_t table_serialize(const struct table *t, struct table_schema *s) {
   uint8_t at;
 
   if (t == NULL || s == NULL) {
@@ -39,7 +39,7 @@ uint8_t table_serialize(const struct table* t, struct table_schema* s) {
   return at;
 }
 
-uint8_t table_parse(struct table* t, const struct table_schema* s) {
+uint8_t table_parse(struct table *t, const struct table_schema *s) {
   uint8_t at;
 
   if (t == NULL || s == NULL) {
@@ -56,9 +56,9 @@ uint8_t table_parse(struct table* t, const struct table_schema* s) {
   return at;
 }
 
-struct table* table_new(char* name, uint16_t size) {
+struct table *table_new(char *name, uint16_t size) {
   uint8_t min;
-  struct table* t = (struct table*)calloc(1, sizeof(struct table));
+  struct table *t = (struct table*)calloc(1, sizeof(struct table));
 
   t->size = size;
   t->cols = (struct col*)calloc(size, sizeof(struct col));
@@ -74,7 +74,7 @@ struct table* table_new(char* name, uint16_t size) {
   return t;
 }
 
-void table_del(struct table* t) {
+void table_del(struct table *t) {
   if (t == NULL) {
     return;
   }

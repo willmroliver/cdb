@@ -8,16 +8,19 @@
 #include <string.h>
 #include <stdlib.h>
 
-struct db* db_open(const char* path) {
+struct db *db_open(const char *path) {
   struct stat st = { 0 };
-  DIR* dir;
-  struct dirent* ent;
-  struct table_schema* ts;
-  struct col_schema* cs;
-  uint16_t db_size, table_size;
-  struct table* tables;
-  struct col* cols;
-  struct db* db;
+  DIR *dir, *dirc;
+  uint16_t ntables = 0, ncols = 0, it = -1, ic = -1;
+  struct dirent *ent;
+  struct table_schema *ts;
+  struct col_schema *cs;
+  char buf[1024], *data;
+  FILE *f;
+  size_t nbytes;
+  struct table *tables;
+  struct col *cols;
+  struct db *db;
   uint8_t min;
 
   if (stat(path, &st) == -1) {
@@ -32,36 +35,44 @@ struct db* db_open(const char* path) {
     return NULL;
   }
 
+  dirc = dir;
+  while (readdir(dirc)) {
+    ++ntables;
+  }
+
+  tables = malloc(ntables * sizeof(struct table));
+
   ent = readdir(dir);
   ts = table_schema_alloc();
   cs = col_schema_alloc();
 
-  // @todo - dynamically initialize the memory for all tables and their cols.
   while (ent != NULL) {
-    FILE* f = fopen(ent->d_name, "r");
+    f = fopen(ent->d_name, "r");
     if (f == NULL) {
       continue;
     }
 
-    size_t len = 0;
-    char* data = fgetln(f, &len);
+    nbytes = 0;
+    data = fgetln(f, &nbytes);
 
-    if (len != TABLE_SCHEMA_SIZE + 1) {
+    if (nbytes != TABLE_SCHEMA_SIZE + 1) {
       continue;
     }
 
+    ++it;
+    tables[it] = *(struct table*)calloc(1, sizeof(struct table));
     table_schema_read(ts, data);
-    // @todo - count tables parsed, realloc() if necessary, store and continue.
+    table_parse(tables + it, ts);
 
-    while ((data = fgetln(f, &len)) && len == COL_SCHEMA_SIZE + 1) {
+    tables[it].cols = (struct col*)calloc(tables[it].size, sizeof(struct col));
+
+    while ((data = fgetln(f, &nbytes)) && nbytes == COL_SCHEMA_SIZE + 1) {
+      ++ic;
+      cols[ic] = *(struct col*)calloc(1, sizeof(struct col));
       col_schema_read(cs, data);
-      // @todo - count cols parsed, realloc() if necessary, store and continue.
+      col_parse(cols + ic, cs);
     } 
-
-    // @todo - realloc cols to actual size.
   }
-
-  // @todo - realloc tables to actual size (we probably doubled the alloc size each time, right?)
 
   table_schema_free(ts);
   col_schema_free(cs);
@@ -75,7 +86,7 @@ struct db* db_open(const char* path) {
   memcpy(db->name, path, min);
   db->name[min] = '\0';
 
-  db->size = db_size;
+  db->size = ntables + 1;
   db->tables = tables;
 
   return db;
