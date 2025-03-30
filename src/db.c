@@ -15,7 +15,7 @@
 struct db *db_open(const char *path) {
   struct stat st = { 0 };
   DIR *dir, *dirc;
-  uint16_t ntables = 0, ncols = 0, it = -1, ic = -1;
+  uint16_t ntables = 0, it = -1, ic = -1;
   struct dirent *ent;
   struct table_schema *ts;
   struct col_schema *cs;
@@ -23,7 +23,6 @@ struct db *db_open(const char *path) {
   char buf[COL_SCHEMA_SIZE > TABLE_SCHEMA_SIZE ? COL_SCHEMA_SIZE : TABLE_SCHEMA_SIZE];
   FILE *f;
   struct table *tables;
-  struct col *cols;
   struct db *db;
   uint8_t min;
 
@@ -67,12 +66,13 @@ struct db *db_open(const char *path) {
     table_parse(tables + it, ts);
 
     tables[it].cols = (struct col*)calloc(tables[it].size, sizeof(struct col));
+    ic = -1;
 
     while (fread(buf, COL_SCHEMA_SIZE + 1, 1, f) == 1) {
       ++ic;
-      cols[ic] = *(struct col*)calloc(1, sizeof(struct col));
+      tables[it].cols[ic] = *(struct col*)calloc(1, sizeof(struct col));
       col_schema_read(cs, buf);
-      col_parse(cols + ic, cs);
+      col_parse(tables[it].cols + ic, cs);
     } 
   }
 
