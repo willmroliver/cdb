@@ -21,6 +21,7 @@ void print_heap(char *cbase, size_t nel, size_t width) {
 
 void make_heap(void *base, size_t nel, size_t width, size_t i, int (*compar)(const void *, const void *)) {
   char *cbase = (char*)base;
+  void *hold;
 
   size_t left = 2 * i + 1, right = 2 * i + 2;
   size_t max = i;
@@ -37,7 +38,7 @@ void make_heap(void *base, size_t nel, size_t width, size_t i, int (*compar)(con
     return;
   }
 
-  void *hold = malloc(width);
+  hold = malloc(width);
 
   memcpy(hold, cbase + (i * width), width);
   memcpy(cbase + (i * width), cbase + (max * width), width);
@@ -50,11 +51,9 @@ void make_heap(void *base, size_t nel, size_t width, size_t i, int (*compar)(con
 
 void heap_sort(void *base, size_t nel, size_t width, int (*compar)(const void *, const void *)) {
   char *cbase = (char*)base;
+  void *hold;
   
-  size_t from = nel/2;
-  if (from > 0) {
-    --from;
-  }
+  size_t from = nel > 1 ? nel/2 - 1 : 0;
 
   for (size_t i = from; i >= 0; --i) {
     make_heap(cbase, nel, width, i, compar);
@@ -63,13 +62,9 @@ void heap_sort(void *base, size_t nel, size_t width, int (*compar)(const void *,
     }
   }
 
-  void *hold = malloc(width);
-
-  from = nel;
-  if (from > 0) {
-    --from;
-  }
-
+  hold = malloc(width);
+  from = nel > 0 ? nel - 1 : 0;
+    
   for (size_t i = from; i >= 0; --i) {
     memcpy(hold, cbase, width);
     memcpy(cbase, cbase + (i * width), width);
@@ -81,5 +76,40 @@ void heap_sort(void *base, size_t nel, size_t width, int (*compar)(const void *,
       break;
     }
   }
+
+  free(hold);
 };
 
+void merge_sort(void *base, size_t from, size_t to, size_t width, int(*compar)(const void*, const void*)) {
+  char *cbase = (char*)base;
+  void *srtd;
+  size_t len, mid, i, j;
+
+  if (from + 1 == to) {
+    return;
+  }
+
+  len = to - from;
+  mid = from + len/2;
+
+  merge_sort(base, from, mid, width, compar);
+  merge_sort(base, mid, to, width, compar);
+
+  i = from;
+  j = mid;
+  srtd = malloc(width * len);
+
+  for (size_t k = 0; k < len; ++k) {
+    if (i < mid && ((j == to) || compar(cbase + i * width, cbase + j * width) < 0)) {
+      memcpy(srtd + k * width, cbase + i * width, width);
+      ++i;
+    } else {
+      memcpy(srtd + k * width, cbase + j * width, width);
+      ++j;
+    }
+  }
+
+  memcpy(cbase + from * width, srtd, width * len);
+
+  free(srtd);
+}
