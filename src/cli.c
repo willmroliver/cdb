@@ -3,6 +3,10 @@
 #include <errno.h>
 
 void cli_init(struct cli *c, FILE *stream, int (*handler)(struct cli *)) {
+  if (c == NULL) {
+    return;
+  }
+
   c->cmd = NULL;
   c->len = 0;
   c->stream = stream;
@@ -13,8 +17,6 @@ void cli_run(struct cli *c) {
   if (c == NULL) {
     return;
   }
-
-  size_t len;
 
   while (1) {
     if (cli_read(c) == 0) {
