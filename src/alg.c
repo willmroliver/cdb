@@ -29,7 +29,7 @@ void make_heap(void *base, size_t nel, size_t width, size_t i, int (*compar)(con
   if (left < nel && compar(cbase + width * max, cbase + width * left) < 0) {
     max = left;
   }
-  
+
   if (right < nel && compar(cbase + width * max, cbase + width * right) < 0) {
     max = right;
   }
@@ -52,7 +52,7 @@ void make_heap(void *base, size_t nel, size_t width, size_t i, int (*compar)(con
 void heap_sort(void *base, size_t nel, size_t width, int (*compar)(const void *, const void *)) {
   char *cbase = (char*)base;
   void *hold;
-  
+
   size_t from = nel > 1 ? nel/2 - 1 : 0;
 
   for (size_t i = from; i >= 0; --i) {
@@ -64,12 +64,12 @@ void heap_sort(void *base, size_t nel, size_t width, int (*compar)(const void *,
 
   hold = malloc(width);
   from = nel > 0 ? nel - 1 : 0;
-    
+
   for (size_t i = from; i >= 0; --i) {
     memcpy(hold, cbase, width);
     memcpy(cbase, cbase + (i * width), width);
     memcpy(cbase + (i * width), hold, width);
-    
+
     make_heap(cbase, i, width, 0, compar);
 
     if (i == 0) {

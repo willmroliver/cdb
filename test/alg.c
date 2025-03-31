@@ -93,10 +93,10 @@ int search_test(char *name, size_t n, int (*func)(int, int*, size_t, int*)) {
 
   for (size_t i = 1; i < n; ++i) {
     int *vals = malloc(n * sizeof(int));
-    rand_ints(vals, i, 10);
+    rand_ints(vals, i, 2*n);
     qsort(vals, i, sizeof(int), min_cmp);
     int key = vals[rand() % i];
-    int oob = 11;
+    int oob = 2*n + 1;
 
     result =
       func(key, vals, i, &key) &&
@@ -123,9 +123,9 @@ int b_search_test(int key, int *vals, size_t len, int *exp) {
     result == NULL ||
     *exp != *result
   ))) {
-    printf("b search failed\nfailed to find %d in", key);
+    printf("b search failed\nexpecting %d, got %d in [", exp == NULL ? -1 : *exp, result == NULL ? -1 : *result);
     for (size_t i = 0; i < len; ++i) printf(" %d", vals[i]);
-    printf("\n");
+    printf(" ]\n");
     return 0;
   }
 
