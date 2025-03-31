@@ -38,16 +38,16 @@ uint8_t col_serialize(const struct col *c, struct col_schema *buf);
 
 uint8_t col_parse(struct col *c, const struct col_schema *buf);
 
-struct col *col_new(col_t t, char *name, uint8_t size);
+void col_init(struct col *c, col_t t, char *name, uint8_t size);
 
-void col_del(struct col *c);
+void col_free(struct col *c);
 
-struct col *col_int_new(char *name, uint8_t size);
+void col_int_init(struct col *c, char *name, uint8_t size);
 
-struct col *col_float_new(char *name, uint8_t size);
+void col_float_init(struct col *c, char *name, uint8_t size);
 
-struct col *col_str_new(char *name, uint8_t size);
+void col_str_init(struct col *c, char *name, uint8_t size);
 
-struct col *col_blob_new(char *name);
+void col_blob_init(struct col *c, char *name);
 
 #endif

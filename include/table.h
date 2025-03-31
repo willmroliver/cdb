@@ -29,8 +29,8 @@ uint8_t table_serialize(const struct table *t, struct table_schema *buf);
 
 uint8_t table_parse(struct table *t, const struct table_schema *buf);
 
-struct table *table_new(char *name, uint16_t size);
+void table_init(struct table *t, char *name, uint16_t size);
 
-void table_del(struct table *t);
+void table_free(struct table *t);
 
 #endif

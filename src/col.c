@@ -60,9 +60,12 @@ uint8_t col_parse(struct col *c, const struct col_schema *s) {
   return at;
 }
 
-struct col *col_new(col_t t, char *name, uint8_t size) {
+void col_init(struct col *c, col_t t, char *name, uint8_t size) {
   size_t min;
-  struct col *c = (struct col*)calloc(1, sizeof(struct col));
+
+  if (c == NULL) {
+    return;
+  }
 
   c->type = (uint8_t)t;
   c->size = size;
@@ -74,36 +77,33 @@ struct col *col_new(col_t t, char *name, uint8_t size) {
 
   memcpy(c->name, name, min);
   c->name[min] = '\0';
-
-  return c;
 }
 
-void col_del(struct col *c) {
+void col_free(struct col *c) {
   if (c != NULL) {
     if (c->val != NULL) {
       free(c->val);
     }
 
     free(c);
-    c = NULL;
   }
 
   return;
 }
 
-struct col *col_int_new(char *name, uint8_t size) {
-  return col_new(COL_INT, name, size);
+void col_int_init(struct col *c, char *name, uint8_t size) {
+  col_init(c, COL_INT, name, size);
 }
 
-struct col *col_float_new(char *name, uint8_t size) {
-  return col_new(COL_FLOAT, name, size);
+void col_float_init(struct col *c, char *name, uint8_t size) {
+  col_init(c, COL_FLOAT, name, size);
 }
 
-struct col *col_str_new(char *name, uint8_t size) {
-  return col_new(COL_STR, name, size);
+void col_str_init(struct col *c, char *name, uint8_t size) {
+  col_init(c, COL_STR, name, size);
 }
 
-struct col *col_blob_new(char *name) {
-  return col_new(COL_BLOB, name, 0);
+void col_blob_init(struct col *c, char *name) {
+  col_init(c, COL_BLOB, name, 0);
 }
 
