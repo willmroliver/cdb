@@ -113,3 +113,26 @@ void merge_sort(void *base, size_t from, size_t to, size_t width, int(*compar)(c
 
   free(srtd);
 }
+
+void *b_search(const void *key, const void *base, size_t nel, size_t width, int (*compar)(const void*, const void*)) {
+  size_t left = 0, right = nel, mid;
+  char *cbase = (char*)base;
+
+  while (left < right) {
+    mid = left + (right - left)/2;
+
+    int cmp = compar(key, cbase + mid * width);
+
+    if (cmp == 0) {
+      return cbase + mid * width;
+    }
+
+    if (cmp < 0) {
+      right = mid;
+    } else {
+      left = mid + 1;
+    }
+  }
+
+  return NULL;
+}
