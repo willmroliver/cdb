@@ -56,9 +56,12 @@ uint8_t table_parse(struct table *t, const struct table_schema *s) {
   return at;
 }
 
-struct table *table_new(char *name, uint16_t size) {
+void table_init(struct table *t, char *name, uint16_t size) {
   uint8_t min;
-  struct table *t = (struct table*)calloc(1, sizeof(struct table));
+
+  if (t == NULL) {
+    return; 
+  }
 
   t->size = size;
   t->cols = (struct col*)calloc(size, sizeof(struct col));
@@ -70,25 +73,21 @@ struct table *table_new(char *name, uint16_t size) {
 
   memcpy(t->name, name, min);
   t->name[min] = '\0';
-
-  return t;
 }
 
-void table_del(struct table *t) {
+void table_free(struct table *t) {
   if (t == NULL) {
     return;
   }
 
   if (t->size > 0) {
     for (int i = 0; i < t->size; ++i) {
-      col_del(t->cols + i);
+      col_free(t->cols + i);
     }
 
     free(t->cols);
   }
 
   free(t);
-  t = NULL;
-  return;
 }
 

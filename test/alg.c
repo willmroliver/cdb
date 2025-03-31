@@ -26,11 +26,7 @@ int main() {
     sort_test("mergesort", 1000, merge_sort_test) &&
     search_test("bsearch", 1000, b_search_test);
 
-  if (passed) {
-    printf("alg tests passed\n");
-  } else {
-    printf("alg tests failed\n");
-  }
+  printf(passed ? "alg tests passed\n" : "alg tests failed\n");
 
   return 0;
 }
