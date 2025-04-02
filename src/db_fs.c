@@ -87,16 +87,15 @@ void open(struct db *db, char *path) {
 
     snprintf(fbuf, sizeof(fbuf), "%s/%s", path, ent->d_name);
 
-    f = fopen(fbuf, "r");
+    f = fopen(fbuf, "rb");
     if (f == NULL)
       continue;
-
+    
+    printf("opened file: %s\n", fbuf);
     nitems = fread(sbuf, TABLE_SCHEMA_SIZE + 1, 1, f);
-    printf("nitems: %zu\n", nitems);
-    if (nitems != 1) 
-      continue;
 
-    printf("found schema\n");
+    if (nitems != 1)
+      continue;
 
     ++it;
     table_schema_read(ts, sbuf);
@@ -115,7 +114,7 @@ void open(struct db *db, char *path) {
   table_schema_free(ts);
   col_schema_free(cs);
 
-  db->size = ntables + 1;
+  db->size = it + 1;
   db->tables = tables;
 }
 
