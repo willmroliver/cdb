@@ -82,6 +82,9 @@ void open(struct db *db, char *path) {
   it = -1;
 
   while ((ent = readdir(dir)) != NULL) {
+    if (f != NULL)
+      fclose(f);
+
     if (ent->d_type != DT_REG)
       continue;
 
@@ -110,6 +113,9 @@ void open(struct db *db, char *path) {
       col_parse(tables[it].cols + ic, cs);
     } 
   }
+
+  if (f != NULL)
+    fclose(f);
 
   table_schema_free(ts);
   col_schema_free(cs);
