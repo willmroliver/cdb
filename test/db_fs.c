@@ -37,7 +37,7 @@ int db_open_test() {
   passed = 
     strcmp("db1", d.name) == 0 &&
     d.size == 1 &&
-    d.tables[0].size == 2 &&
+    d.tables[0].size == 4 &&
     strcmp("table1", d.tables[0].name) == 0 &&
     strcmp("col0", d.tables[0].cols[0].name) == 0 &&
     strcmp("col1", d.tables[0].cols[1].name) == 0 &&
@@ -80,5 +80,7 @@ void gen_table_file() {
     assert(fwrite(cs.data, COL_SCHEMA_SIZE, 1, f) > 0);
     assert(fputc('\n', f) > 0);
   }
+
+  fclose(f);
 }
 
