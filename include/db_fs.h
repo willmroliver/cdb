@@ -1,17 +1,13 @@
 #ifndef INC_DB_FS_H
 #define INC_DB_FS_H
 
-#ifndef PATH_MAX
-#define PATH_MAX 256
-#endif
-
 #include "db.h"
 
 #include <stddef.h>
 
 struct db_fs {
   struct db_ix *ix;
-  char path[PATH_MAX];
+  char path[256];
   char* tables;
 };
 
