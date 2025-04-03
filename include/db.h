@@ -14,8 +14,8 @@ struct db {
 
 struct db_ix {
   int (*open)(struct db*, char*);
-  int (*read)(struct db*, struct table*, char*);
-  int (*write)(struct db*, struct table*, char*);
+  int (*table_open)(struct db*, struct table*, char*);
+  int (*table_save)(struct db*, struct table*, char*);
 };
 
 int db_open(struct db *d, struct db_ix *ix, char *path);

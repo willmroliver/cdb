@@ -13,11 +13,11 @@ struct db_fs {
 
 void db_fs_init(struct db_ix*);
 
-int open(struct db*, char*);
+int db_fs_open(struct db*, char*);
 
-int read(struct db*, struct table*, char*);
+int db_fs_table_open(struct db*, struct table*, char*);
 
-int write(struct db*, struct table*, char*);
+int db_fs_table_save(struct db*, struct table*, char*);
 
 #endif
 

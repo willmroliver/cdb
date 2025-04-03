@@ -12,12 +12,12 @@
 
 void db_fs_init(struct db_ix *ix)
 {
-  ix->open = open;
-  ix->read = read;
-  ix->write = write;
+  ix->open = db_fs_open;
+  ix->table_open = db_fs_table_open;
+  ix->table_save = db_fs_table_save;
 }
 
-int open(struct db *d, char *path)
+int db_fs_open(struct db *d, char *path)
 {
   struct db_ix *ix;
   struct db_fs *fs;
@@ -69,14 +69,14 @@ int open(struct db *d, char *path)
     if (ent->d_type != DT_REG)
       continue;
 
-    if (read(d, d->tables + d->size, ent->d_name) == 0)
+    if (db_fs_table_open(d, d->tables + d->size, ent->d_name) == 0)
       ++d->size;
   }
 
   return 0;
 }
 
-int read(struct db *d, struct table* t, char* tname)
+int db_fs_table_open(struct db *d, struct table* t, char* tname)
 {
   FILE *f = NULL;
   char fbuf[256];
@@ -112,7 +112,7 @@ int read(struct db *d, struct table* t, char* tname)
   return 0;
 }
 
-int write(struct db *d, struct table* t, char* tname)
+int db_fs_table_save(struct db *d, struct table* t, char* tname)
 {
   char fbuf[256];
   FILE *f = NULL;
