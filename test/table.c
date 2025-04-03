@@ -3,11 +3,12 @@
 #include <stdio.h>
 #include <string.h>
 
-// --- INTEGRATION TESTS ---
-int table_serialize_parse_test();
-int table_read_write_test();
+/*--- INTEGRATION TESTS ---*/
+int table_serialize_parse_test(void);
+int table_read_write_test(void);
 
-int main() {
+int main(void)
+{
   int passed = 
     table_serialize_parse_test() &&
     table_read_write_test();
@@ -17,9 +18,10 @@ int main() {
   return 0;
 }
 
-// --- INTEGRATION TESTS ---
+/*--- INTEGRATION TESTS ---*/
 
-int table_serialize_parse_test() {
+int table_serialize_parse_test(void)
+{
   struct table_schema s;
   struct table t, u;
   char *tname = "test_table";
@@ -34,7 +36,8 @@ int table_serialize_parse_test() {
     t.size == u.size;
 }
 
-int table_read_write_test() {
+int table_read_write_test(void)
+{
   struct table_schema r, s;
   struct table t, u;
   char data[TABLE_SCHEMA_SIZE];

@@ -13,9 +13,10 @@ void gen_table_file(char*, char*, char*, uint16_t, col_t, uint8_t);
 
 // --- UNIT TESTS ---
 
-int db_open_test();
+int db_open_test(void);
 
-int main() {
+int main(void)
+{
   int passed =
     db_open_test();
 
@@ -23,7 +24,8 @@ int main() {
   return 0;
 }
 
-int db_open_test() {
+int db_open_test(void)
+{
   int passed;
   struct db d;
   struct db_fs fs;
@@ -32,7 +34,7 @@ int db_open_test() {
   struct table *t;
   struct col *c;
   char *path = "./dbs", *dbname = "db1", *tname = "table1";
-  uint16_t ncols = 4;
+  uint16_t i, ncols = 4;
   col_t ctype = COL_INT;
   uint8_t csize = 32;
 
@@ -50,7 +52,7 @@ int db_open_test() {
 
   t = d.tables;
 
-  for (uint16_t i = 0; i < ncols; ++i) {
+  for (i = 0; i < ncols; ++i) {
     if (!passed)
       break;
 
@@ -63,26 +65,25 @@ int db_open_test() {
       c->type == ctype;
   }
 
-  if (!passed) {
+  if (!passed)
     printf("db_open_test failed\n");
-  }
 
   return passed;
 }
 
-void gen_table_file(
-  char *path, 
-  char *dbname, 
-  char *tname,
-  uint16_t ncols,
-  col_t ctype,
-  uint8_t csize
-) {
+void gen_table_file(char *path, 
+                    char *dbname, 
+                    char *tname,
+                    uint16_t ncols,
+                    col_t ctype,
+                    uint8_t csize)
+{
   char buf[256];
-  struct col_schema cs;
-  struct table_schema ts;
-  struct table t;
   FILE *f;
+  uint16_t i;
+  struct table t;
+  struct table_schema ts;
+  struct col_schema cs;
 
   assert(mkdir_recursive(path) == 0);
   snprintf(buf, sizeof(buf), "%s/%s/%s", path, dbname, tname);
@@ -90,7 +91,8 @@ void gen_table_file(
 
   table_init(&t, tname, ncols);
 
-  for (uint16_t i = 0; i < t.size; ++i) {
+  for (i = 0; i < t.size; ++i)
+{
     col_init(t.cols + i, ctype, "", csize);
     snprintf(t.cols[i].name, sizeof(t.cols[i].name), "col%u", i);
   }
@@ -100,7 +102,8 @@ void gen_table_file(
   assert(fwrite(ts.data, TABLE_SCHEMA_SIZE, 1, f) > 0);
   assert(fputc('\n', f) > 0);
 
-  for (uint16_t i = 0; i < t.size; ++i) {
+  for (i = 0; i < t.size; ++i)
+{
     col_serialize(t.cols + i, &cs);
 
     assert(fwrite(cs.data, COL_SCHEMA_SIZE, 1, f) > 0);

@@ -1,9 +1,7 @@
-#ifndef INC_UTIL_H
-#define INC_UTIL_H
+#include "utils/timer.h"
 
-#include <time.h>
-
-static inline size_t clock_timesince_nsec(clockid_t clock_id, struct timespec *tp) {
+size_t clock_timesince_nsec(clockid_t clock_id, struct timespec *tp)
+{
   struct timespec up;
   clock_gettime(clock_id, &up);
 
@@ -17,5 +15,3 @@ static inline size_t clock_timesince_nsec(clockid_t clock_id, struct timespec *t
 
   return 1e9*up.tv_sec + up.tv_nsec;
 }
-
-#endif

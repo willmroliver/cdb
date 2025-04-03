@@ -7,14 +7,14 @@
 #include <errno.h>
 #include <string.h>
 
-int mkdir_recursive(char *path) {
+int mkdir_recursive(char *path)
+{
   char buf[256] = { 0 };
   unsigned long plen = strlen(path), i = 0;
   struct stat st = { 0 };
 
-  if (plen > 2 && path[0] == '.' && path[1] == '/') {
+  if (plen > 2 && path[0] == '.' && path[1] == '/')
     i = 2;
-  }
 
   strcpy(buf, path);
 

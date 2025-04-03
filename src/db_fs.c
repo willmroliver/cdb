@@ -10,13 +10,15 @@
 #include <stdlib.h>
 #include <string.h>
 
-void db_fs_init(struct db_ix *ix) {
+void db_fs_init(struct db_ix *ix)
+{
   ix->open = open;
   ix->read = read;
   ix->write = write;
 }
 
-int open(struct db *d, char *path) {
+int open(struct db *d, char *path)
+{
   struct db_ix *ix;
   struct db_fs *fs;
   uint16_t plen;
@@ -74,7 +76,8 @@ int open(struct db *d, char *path) {
   return 0;
 }
 
-int read(struct db *d, struct table* t, char* tname) {
+int read(struct db *d, struct table* t, char* tname)
+{
   FILE *f = NULL;
   char fbuf[256];
   char sbuf[COL_SCHEMA_SIZE > TABLE_SCHEMA_SIZE ? COL_SCHEMA_SIZE : TABLE_SCHEMA_SIZE];
@@ -109,7 +112,8 @@ int read(struct db *d, struct table* t, char* tname) {
   return 0;
 }
 
-int write(struct db *d, struct table* t, char* tname) {
+int write(struct db *d, struct table* t, char* tname)
+{
   char fbuf[256];
   FILE *f = NULL;
   struct table_schema ts = { 0 };

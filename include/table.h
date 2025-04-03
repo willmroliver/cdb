@@ -19,7 +19,7 @@ struct table_schema {
   char data[TABLE_SCHEMA_SIZE];  
 };
 
-struct table_schema *table_schema_alloc();
+struct table_schema *table_schema_alloc(void);
 
 void table_schema_free(struct table_schema *s);
 

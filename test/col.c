@@ -4,10 +4,11 @@
 #include <string.h>
 
 // --- INTEGRATION TESTS ---
-int col_serialize_parse_test();
-int col_read_write_test();
+int col_serialize_parse_test(void);
+int col_read_write_test(void);
 
-int main() {
+int main(void)
+{
   int passed = 
     col_serialize_parse_test() &&
     col_read_write_test();
@@ -19,7 +20,8 @@ int main() {
 
 // --- INTEGRATION TESTS ---
 
-int col_serialize_parse_test() {
+int col_serialize_parse_test(void)
+{
   struct col_schema s;
   struct col t, u;
   char *cname = "test_col";
@@ -34,7 +36,8 @@ int col_serialize_parse_test() {
     t.size == u.size;
 }
 
-int col_read_write_test() {
+int col_read_write_test(void)
+{
   struct col_schema r, s;
   struct col t, u;
   char data[COL_SCHEMA_SIZE];
