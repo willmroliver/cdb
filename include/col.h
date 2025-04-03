@@ -2,6 +2,7 @@
 #define INC_COL_H
 
 #include <stdint.h>
+#include <stdio.h>
 
 #define COL_SCHEMA_SIZE 64
 #define COL_NAME_BYTES 32
@@ -9,7 +10,7 @@
 #define COL_SIZE_BYTES 1
 
 typedef enum {
-  COL_INT,
+  COL_INT = 1,
   COL_FLOAT,
   COL_STR,
   COL_BLOB
@@ -33,6 +34,10 @@ void col_schema_free(struct col_schema *s);
 void col_schema_read(struct col_schema *s, const void *src);
 
 void col_schema_write(const struct col_schema *s, void *dest);
+
+int col_schema_fread(struct col_schema *s, FILE *f);
+
+int col_schema_fwrite(const struct col_schema *s, FILE *f);
 
 uint8_t col_serialize(const struct col *c, struct col_schema *buf);
 

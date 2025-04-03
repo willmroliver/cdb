@@ -1,4 +1,5 @@
 #include "col.h"
+
 #include <string.h>
 #include <stdlib.h>
 
@@ -20,6 +21,24 @@ void col_schema_read(struct col_schema *s, const void *src) {
 
 void col_schema_write(const struct col_schema *s, void *dest) {
   memcpy(dest, s, COL_SCHEMA_SIZE);
+}
+
+int col_schema_fread(struct col_schema *s, FILE *f) {
+  if (fread(s->data, COL_SCHEMA_SIZE, 1, f) != 1)
+    return -1;
+  if (fgetc(f) != '\n')
+    return -1;
+
+  return 0;
+}
+
+int col_schema_fwrite(const struct col_schema *s, FILE *f) {
+  if (fwrite(s->data, COL_SCHEMA_SIZE, 1, f) != 1)
+    return -1;
+  if (fputc('\n', f) != '\n')
+    return -1;
+
+  return 0;
 }
 
 uint8_t col_serialize(const struct col *c, struct col_schema *s) {
