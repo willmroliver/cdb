@@ -3,7 +3,7 @@
 
 #include <stddef.h>
 
-// could find these in the std library, but that's no fun
+/*could find these in the std library, but that's no fun*/
 
 void make_heap(void *base, size_t nel, size_t width, size_t i, int (*compar)(const void *, const void *));
 

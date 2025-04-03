@@ -27,7 +27,7 @@ struct col_schema {
   char data[COL_SCHEMA_SIZE];
 };
 
-struct col_schema *col_schema_alloc();
+struct col_schema *col_schema_alloc(void);
 
 void col_schema_free(struct col_schema *s);
 
