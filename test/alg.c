@@ -20,7 +20,7 @@ int assert_cmp(void*, size_t, size_t, int(*)(const void*, const void*));
 int min_cmp(const void*, const void*);
 void rand_ints(int*, size_t, size_t);
 
-int main()
+int main(void)
 {
   int passed = 
     sort_test("heapsort", 1000, heap_sort_test) &&
@@ -92,11 +92,12 @@ int search_test(char *name, size_t n, int (*func)(int, int*, size_t, int*))
   clock_gettime(CLOCK_REALTIME, &from);
 
   for (i = 1; i < n; ++i) {
-    int *vals = malloc(n * sizeof(int));
+    int key, oob, *vals = malloc(n * sizeof(int));
+
     rand_ints(vals, i, 2*n);
     qsort(vals, i, sizeof(int), min_cmp);
-    int key = vals[rand() % i];
-    int oob = 2*n + 1;
+    key = vals[rand() % i];
+    oob = 2*n + 1;
 
     result =
       func(key, vals, i, &key) &&
@@ -138,12 +139,13 @@ int b_search_test(int key, int *vals, size_t len, int *exp)
 int assert_cmp(void *base, size_t nels, size_t width, int(*cmp)(const void*, const void*))
 {
   size_t i;
+  char *cbase = (char*)base;
 
   if (nels < 2)
     return 1;
 
   for (i = 0; i < nels-1; ++i)
-    if (cmp(base + i * width, base + (i + 1) * width) == 1)
+    if (cmp(cbase + i * width, cbase + (i + 1) * width) == 1)
       return 0;
 
   return 1;
