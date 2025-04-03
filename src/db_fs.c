@@ -16,119 +16,123 @@ void db_fs_init(struct db_ix *ix) {
   ix->write = write;
 }
 
-void open(struct db *db, char *path) {
+int open(struct db *d, char *path) {
   struct db_ix *ix;
   struct db_fs *fs;
-
-  DIR *dir, *dirc;
-  uint16_t ntables = 0, it, ic;
-  struct dirent *ent;
-
-  struct table_schema *ts;
-  struct col_schema *cs;
-  size_t nitems;
-  char sbuf[COL_SCHEMA_SIZE > TABLE_SCHEMA_SIZE ? COL_SCHEMA_SIZE : TABLE_SCHEMA_SIZE];
-  char fbuf[256];
-  FILE *f;
-  struct table *tables;
   uint16_t plen;
+  size_t i;
+  DIR *dir;
+  uint16_t ntables = 0;
+  struct dirent *ent;
+  
+  if (d == NULL || d->ix == NULL) 
+    return -1;
 
-  if (db == NULL || db->ix == NULL) 
-    return;
-
-  ix = db->ix;
+  ix = d->ix;
   fs = (struct db_fs*)ix;
   db_fs_init(ix);
 
-  plen = strlen(path);
-  if (plen + 1 > 256)
-    return;
+  if ((plen = strlen(path)) > 255)
+    return -1;
 
   memcpy(fs->path, path, plen + 1);
 
-  for (size_t i = 1; i <= 31; ++i) {
+  for (i = 1; i <= 31; ++i) {
     if (i < 31 && path[plen - i - 2] != '/')
       continue;
 
     if (plen <= i + 2)
       break;
 
-    memcpy(db->name, path + plen - i - 1, i + 1);
-    db->name[i + 1] = '\0';
+    memcpy(d->name, path + plen - i - 1, i + 1);
+    d->name[i + 1] = '\0';
     break;
   }
 
   if (mkdir_recursive(path) == -1)
-    return;
+    return -1;
 
+  if ((dir = opendir(path)) == NULL) 
+    return -1;
 
-  dir = opendir(path);
-  if (dir == NULL) 
-    return;
-
-  dirc = opendir(path);
-
-  while ((ent = readdir(dirc))) {
+  while ((ent = readdir(dir)) != NULL) 
     if (ent->d_type == DT_REG)
       ++ntables;
-  }
-
-  tables = calloc(sizeof(struct table), ntables);
-
-  ent = readdir(dir);
-  ts = table_schema_alloc();
-  cs = col_schema_alloc();
-
-  it = -1;
+  
+  d->tables = calloc(sizeof(struct table), ntables);
+  d->size = 0;
+  rewinddir(dir);
 
   while ((ent = readdir(dir)) != NULL) {
-    if (f != NULL)
-      fclose(f);
-
     if (ent->d_type != DT_REG)
       continue;
 
-    snprintf(fbuf, sizeof(fbuf), "%s/%s", path, ent->d_name);
-
-    f = fopen(fbuf, "rb");
-    if (f == NULL)
-      continue;
-    
-    printf("opened file: %s\n", fbuf);
-    nitems = fread(sbuf, TABLE_SCHEMA_SIZE + 1, 1, f);
-
-    if (nitems != 1)
-      continue;
-
-    ++it;
-    table_schema_read(ts, sbuf);
-    table_parse(tables + it, ts);
-
-    tables[it].cols = calloc(tables[it].size, sizeof(struct col));
-    ic = -1;
-
-    while (fread(sbuf, COL_SCHEMA_SIZE + 1, 1, f) == 1) {
-      ++ic;
-      col_schema_read(cs, sbuf);
-      col_parse(tables[it].cols + ic, cs);
-    } 
+    if (read(d, d->tables + d->size, ent->d_name) == 0)
+      ++d->size;
   }
 
-  if (f != NULL)
-    fclose(f);
-
-  table_schema_free(ts);
-  col_schema_free(cs);
-
-  db->size = it + 1;
-  db->tables = tables;
+  return 0;
 }
 
-void read(struct db *d, struct table* t, char* tname) {
-  // @todo - read table schema from FS
+int read(struct db *d, struct table* t, char* tname) {
+  FILE *f = NULL;
+  char fbuf[256];
+  char sbuf[COL_SCHEMA_SIZE > TABLE_SCHEMA_SIZE ? COL_SCHEMA_SIZE : TABLE_SCHEMA_SIZE];
+  uint16_t ncols = 0;
+  struct table_schema ts = { 0 };
+  struct col_schema cs = { 0 };
+
+  if (d == NULL || t == NULL || tname == NULL)
+    return -1;
+
+  snprintf(fbuf, sizeof(fbuf), "%s/%s", ((struct db_fs*)d->ix)->path, tname);
+  f = fopen(fbuf, "rb");
+  if (f == NULL)
+    return -1;
+
+  if (table_schema_fread(&ts, f) != 0)
+    return -1;
+
+  table_parse(t, &ts);
+
+  t->cols = calloc(t->size, sizeof(struct col));
+
+  while (ncols < t->size && fread(sbuf, COL_SCHEMA_SIZE + 1, 1, f) == 1) {
+    col_schema_read(&cs, sbuf);
+    col_parse(t->cols + ncols, &cs);
+    ++ncols;
+  }
+
+  t->size = ncols;
+  fclose(f);
+
+  return 0;
 }
 
-void write(struct db *d, struct table* t, char* tname) {
-  // @todo - write table schema to FS
+int write(struct db *d, struct table* t, char* tname) {
+  char fbuf[256];
+  FILE *f = NULL;
+  struct table_schema ts = { 0 };
+  struct col_schema cs = { 0 };
+  uint16_t i;
+
+  if (d == NULL || t == NULL || tname == NULL)
+    return -1;
+
+  snprintf(fbuf, sizeof(fbuf), "%s/%s", ((struct db_fs*)d->ix)->path, tname);
+  if ((f = fopen(fbuf, "wb")) == NULL)
+    return -1;
+
+  table_serialize(t, &ts);
+  if (table_schema_fwrite(&ts, f) != 0) 
+    return -1;
+
+  for (i = 0; i < t->size; ++i) {
+    col_serialize(t->cols + i, &cs);
+    if (col_schema_fwrite(&cs, f) != 0)
+      return -1;
+  }
+
+  return 0;
 }
 

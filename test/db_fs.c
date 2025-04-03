@@ -9,7 +9,7 @@
 
 // --- HELPERS ---
 
-void gen_table_file();
+void gen_table_file(char*, char*, char*, uint16_t, col_t, uint8_t);
 
 // --- UNIT TESTS ---
 
@@ -28,21 +28,40 @@ int db_open_test() {
   struct db d;
   struct db_fs fs;
   struct db_ix *ix = (struct db_ix*)&fs;
+  char buf[256];
+  struct table *t;
+  struct col *c;
+  char *path = "./dbs", *dbname = "db1", *tname = "table1";
+  uint16_t ncols = 4;
+  col_t ctype = COL_INT;
+  uint8_t csize = 32;
+
   db_fs_init(ix);
+  gen_table_file(path, dbname, tname, ncols, ctype, csize);
 
-  gen_table_file();
-
-  db_open(&d, ix, "./dbs/db1");
+  snprintf(buf, sizeof(buf), "%s/%s", path, dbname);
+  db_open(&d, ix, buf);
 
   passed = 
-    strcmp("db1", d.name) == 0 &&
+    strcmp(dbname, d.name) == 0 &&
     d.size == 1 &&
-    d.tables[0].size == 4 &&
-    strcmp("table1", d.tables[0].name) == 0 &&
-    strcmp("col0", d.tables[0].cols[0].name) == 0 &&
-    strcmp("col1", d.tables[0].cols[1].name) == 0 &&
-    strcmp("col2", d.tables[0].cols[2].name) == 0 &&
-    strcmp("col3", d.tables[0].cols[3].name) == 0; 
+    strcmp(tname, d.tables[0].name) == 0 &&
+    d.tables[0].size == ncols;
+
+  t = d.tables;
+
+  for (uint16_t i = 0; i < ncols; ++i) {
+    if (!passed)
+      break;
+
+    snprintf(buf, sizeof(buf), "col%u", i);
+    c = t->cols + i;
+
+    passed = passed &&
+      strcmp(buf, c->name) == 0 &&
+      c->size == csize &&
+      c->type == ctype;
+  }
 
   if (!passed) {
     printf("db_open_test failed\n");
@@ -51,21 +70,28 @@ int db_open_test() {
   return passed;
 }
 
-void gen_table_file() {
-  char buf[256], *path = "./dbs/db1", *tname = "table1";
+void gen_table_file(
+  char *path, 
+  char *dbname, 
+  char *tname,
+  uint16_t ncols,
+  col_t ctype,
+  uint8_t csize
+) {
+  char buf[256];
   struct col_schema cs;
   struct table_schema ts;
   struct table t;
   FILE *f;
 
   assert(mkdir_recursive(path) == 0);
-  snprintf(buf, sizeof(buf), "%s/%s", path, tname);
+  snprintf(buf, sizeof(buf), "%s/%s/%s", path, dbname, tname);
   f = fopen(buf, "w");
 
-  table_init(&t, tname, 4);
+  table_init(&t, tname, ncols);
 
   for (uint16_t i = 0; i < t.size; ++i) {
-    col_init(t.cols + i, COL_INT, "", 32);
+    col_init(t.cols + i, ctype, "", csize);
     snprintf(t.cols[i].name, sizeof(t.cols[i].name), "col%u", i);
   }
 
@@ -73,7 +99,7 @@ void gen_table_file() {
 
   assert(fwrite(ts.data, TABLE_SCHEMA_SIZE, 1, f) > 0);
   assert(fputc('\n', f) > 0);
-  
+
   for (uint16_t i = 0; i < t.size; ++i) {
     col_serialize(t.cols + i, &cs);
 

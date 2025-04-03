@@ -1,4 +1,5 @@
 #include "table.h"
+
 #include <string.h>
 #include <stdlib.h>
 
@@ -21,6 +22,24 @@ void table_schema_read(struct table_schema *s, const void *src) {
 
 void table_schema_write(const struct table_schema *s, void *dest) {
   memcpy(dest, s, TABLE_SCHEMA_SIZE);
+}
+
+int table_schema_fread(struct table_schema *s, FILE *f) {
+  if (fread(s->data, TABLE_SCHEMA_SIZE, 1, f) != 1)
+    return -1;
+  if (fgetc(f) != '\n')
+    return -1;
+
+  return 0;
+}
+
+int table_schema_fwrite(const struct table_schema *s, FILE *f) {
+  if (fwrite(s->data, TABLE_SCHEMA_SIZE, 1, f) != 1)
+    return -1;
+  if (fputc('\n', f) != '\n')
+    return -1;
+
+  return 0;
 }
 
 uint8_t table_serialize(const struct table *t, struct table_schema *s) {

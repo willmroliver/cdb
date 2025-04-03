@@ -9,9 +9,9 @@
 #include <string.h>
 #include <stdlib.h>
 
-void db_open(struct db *d, struct db_ix *ix, char *path) {
+int db_open(struct db *d, struct db_ix *ix, char *path) {
   d->ix = ix;
-  ix->open(d, path);
+  return ix->open(d, path);
 }
 
 int table_cmp(const void* a, const void* b) {
