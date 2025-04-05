@@ -95,20 +95,17 @@ void table_init(struct table *t, char *name, uint16_t size)
   t->name[min] = '\0';
 }
 
-void table_free(struct table *t)
+void table_del(struct table *t)
 {
   int i;
 
   if (t == NULL)
     return;
 
-  if (t->size > 0) {
+  if (t->size > 0 && t->cols != NULL) {
     for (i = 0; i < t->size; ++i)
-      col_free(t->cols + i);
-
+      col_val_free(t->cols + i);
     free(t->cols);
   }
-
-  free(t);
 }
 

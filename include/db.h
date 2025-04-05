@@ -3,8 +3,6 @@
 
 #include "table.h"
 
-#include <sys/stat.h>
-
 struct db {
   char name[32];
   uint16_t size;

@@ -11,7 +11,7 @@ struct db_fs {
   char* tables;
 };
 
-void db_fs_init(struct db_ix*);
+void db_fs_init(struct db_fs*);
 
 int db_fs_open(struct db*, char*);
 

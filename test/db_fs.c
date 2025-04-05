@@ -42,7 +42,7 @@ int db_open_test(void)
   col_t ctype = COL_INT;
   uint8_t csize = 32;
 
-  db_fs_init(ix);
+  db_fs_init(&fs);
   gen_table_file(path, dbname, tname, ncols, ctype, csize);
 
   snprintf(buf, sizeof(buf), "%s/%s", path, dbname);
@@ -90,7 +90,7 @@ int db_fs_table_open_test(void)
   struct col *c;
 
   gen_table_file(path, dbname, tname, tsize, ctype, csize);
-  db_fs_init(ix);
+  db_fs_init(&fs);
 
   snprintf(d.name, sizeof(d.name), "%s", dbname);
   snprintf(fs.path, sizeof(fs.path), "%s/%s", path, dbname);

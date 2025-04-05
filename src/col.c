@@ -108,19 +108,11 @@ void col_init(struct col *c, col_t t, char *name, uint8_t size)
   c->name[min] = '\0';
 }
 
-void col_free(struct col *c)
+void col_val_free(struct col *c)
 {
   if (c != NULL)
-{
     if (c->val != NULL)
-{
       free(c->val);
-    }
-
-    free(c);
-  }
-
-  return;
 }
 
 void col_int_init(struct col *c, char *name, uint8_t size)

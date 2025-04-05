@@ -45,7 +45,7 @@ uint8_t col_parse(struct col *c, const struct col_schema *buf);
 
 void col_init(struct col *c, col_t t, char *name, uint8_t size);
 
-void col_free(struct col *c);
+void col_val_free(struct col *c);
 
 void col_int_init(struct col *c, char *name, uint8_t size);
 

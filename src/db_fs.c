@@ -10,11 +10,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-void db_fs_init(struct db_ix *ix)
+void db_fs_init(struct db_fs *fs)
 {
-  ix->open = db_fs_open;
-  ix->table_open = db_fs_table_open;
-  ix->table_save = db_fs_table_save;
+  fs->ix->open = db_fs_open;
+  fs->ix->table_open = db_fs_table_open;
+  fs->ix->table_save = db_fs_table_save;
 }
 
 int db_fs_open(struct db *d, char *path)
@@ -32,7 +32,7 @@ int db_fs_open(struct db *d, char *path)
 
   ix = d->ix;
   fs = (struct db_fs*)ix;
-  db_fs_init(ix);
+  db_fs_init(fs);
 
   if ((plen = strlen(path)) > 255)
     return -1;

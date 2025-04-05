@@ -37,6 +37,6 @@ uint8_t table_parse(struct table *t, const struct table_schema *buf);
 
 void table_init(struct table *t, char *name, uint16_t size);
 
-void table_free(struct table *t);
+void table_del(struct table *t);
 
 #endif
