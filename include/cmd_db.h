@@ -6,12 +6,15 @@
 struct cmd_db {
   struct cmd_ix *ix;
   struct db *db;
-  void (*handle)(struct cmd*);
+  int (*get)(struct cmd*);
+  void (*proc)(char*);
 };
 
 void cmd_db_init(struct cmd_db* ix);
 
-void cmd_db_handle(struct cmd* c);
+int cmd_db_get(struct cmd *c);
+
+void cmd_db_proc(char *cmd);
 
 #endif
 

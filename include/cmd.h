@@ -14,15 +14,17 @@ struct cmd {
 };
 
 struct cmd_ix {
-  int (*read)(struct cmd*);
-  void (*handle)(struct cmd*);
+  int (*get)(struct cmd*);
+  void (*proc)(char*, size_t len);
 };
 
-int cmd_init(struct cmd *c, FILE *in, struct cmd_ix *ix);
+int cmd_init(struct cmd *c, FILE *in, struct cmd_ix *ix, int size);
 
-int cmd_init_mux(struct cmd *c, FILE *in, struct cmd_ix *ix);
+int cmd_init_mux(struct cmd *c, FILE *in, struct cmd_ix *ix, int size);
 
-int cmd_destroy_mux(struct cmd *c);
+int cmd_del(struct cmd *c);
+
+int cmd_del_mux(struct cmd *c);
 
 void cmd_loop(struct cmd *c);
 
