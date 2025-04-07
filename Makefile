@@ -13,7 +13,7 @@ ifeq ($(DEBUG), 1)
 endif
 
 srcs := $(shell find $(srcdir) -type f -name '*.c')
-tests := $(wildcard $(testdir)/*.c)
+tests := $(shell find $(testdir) -type f -name '*.c')
 
 objs := $(patsubst $(srcdir)/%.c, $(builddir)/%.o, $(srcs))
 test_exes := $(patsubst $(testdir)/%.c, $(builddir)/$(testdir)/%, $(tests))
