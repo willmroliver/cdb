@@ -23,6 +23,6 @@ void tpool_init(struct tpool *p);
 
 void tpool_del(struct tpool *p);
 
-void tpool_job_push(void (*job)(void*), void *arg);
+int tpool_job_push(struct tpool *p, void *(*job)(void*), void *arg);
 
 #endif

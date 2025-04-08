@@ -46,6 +46,23 @@ void tpool_del(struct tpool *p)
   pthread_cond_destroy(p->cond_job);
 }
 
+int tpool_job_push(struct tpool *p, void *(*job)(void*), void *arg)
+{
+  int err;
+
+  struct tjob j = {
+    .proc=job,
+    .arg=arg,
+  };
+
+  pthread_mutex_lock(p->job_mux);
+  if ((err = ring_push(p->jobs, &j)) == 0)
+    pthread_cond_signal(p->cond_job);
+  pthread_mutex_unlock(p->job_mux);
+
+  return err;
+}
+
 /*--- PRIVATE METHODS BEGIN ---*/
 
 void *tpool_routine(void *arg) 
