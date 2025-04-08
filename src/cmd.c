@@ -123,6 +123,8 @@ int cmd_get(struct cmd *c)
   return c->ix->get(c);
 }
 
+/*--- PRIVATE METHODS BEGIN ---*/
+
 void cmd_proc(void *arg)
 {
   struct cmd *c = (struct cmd*)arg;
@@ -157,3 +159,6 @@ struct cmd *cmd_unlock(struct cmd *c) {
     return NULL;
   return c;
 }
+
+/*--- PRIVATE METHODS END ---*/
+
