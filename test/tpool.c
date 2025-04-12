@@ -2,6 +2,7 @@
 #include "utils/timer.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <time.h>
 
 /*--- HELPERS ---*/
@@ -17,14 +18,23 @@ void *job(void* arg);
 
 int tpool_init_push_del_test(int n);
 
-int main()
+int main(int argc, char** argv)
 {
-  int passed =
-    tpool_init_push_del_test(1) &&
-    tpool_init_push_del_test(10) &&
-    tpool_init_push_del_test(100) &&
-    tpool_init_push_del_test(1000) &&
-    tpool_init_push_del_test(10000);
+  int passed, i, n = argc > 1 ? atoi(argv[1]) : 1;
+
+  if (n < 1)
+    n = 1;
+  else if (n > 10000)
+    n = 10000;
+
+  for (i = 0; i < n; ++i) {
+    passed =
+      tpool_init_push_del_test(1) &&
+      tpool_init_push_del_test(10) &&
+      tpool_init_push_del_test(100) &&
+      tpool_init_push_del_test(1000) &&
+      tpool_init_push_del_test(10000);
+  }
 
   printf(passed ? "tpool tests passed\n" : "tpool tests failed\n");
     

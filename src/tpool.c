@@ -31,7 +31,9 @@ void tpool_del(struct tpool *p)
 {
   int i;
 
+  pthread_mutex_lock(&p->job_mux);
   p->run = 0;
+  pthread_mutex_unlock(&p->job_mux);
   
   pthread_cond_broadcast(&p->cond_job);
 
@@ -73,13 +75,11 @@ void *tpool_routine(void *arg)
   pthread_mutex_lock(&p->job_mux);
 
   while (1) {
-    if (p->run && ring_empty(p->jobs))
+    if (ring_empty(p->jobs) && p->run)
       pthread_cond_wait(&p->cond_job, &p->job_mux);
 
-    if (!p->run && ring_empty(p->jobs)) {
-      pthread_mutex_unlock(&p->job_mux);
-      return NULL;
-    }
+    if (ring_empty(p->jobs) && !p->run)
+      goto out;
 
     if (ring_pop(p->jobs, &j) != 0)
       continue;
@@ -89,6 +89,7 @@ void *tpool_routine(void *arg)
     pthread_mutex_lock(&p->job_mux);
   }
 
+out:
   pthread_mutex_unlock(&p->job_mux);
   return NULL;
 }
