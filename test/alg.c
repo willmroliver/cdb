@@ -8,6 +8,7 @@
 #include <memory.h>
 
 /*--- UNIT TESTS ---*/
+
 int sort_test(char*, size_t, int (*)(int*, size_t));
 int heap_sort_test(int*, size_t);
 int merge_sort_test(int*, size_t);
@@ -16,6 +17,7 @@ int search_test(char*, size_t, int (*)(int, int*, size_t, int*));
 int b_search_test(int, int*, size_t, int*);
 
 /*--- UTILITY FUNCTIONS ---*/
+
 int assert_cmp(void*, size_t, size_t, int(*)(const void*, const void*));
 int min_cmp(const void*, const void*);
 void rand_ints(int*, size_t, size_t);

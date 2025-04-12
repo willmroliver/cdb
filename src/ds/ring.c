@@ -44,7 +44,7 @@ int ring_push(ring_t *t, void *val)
 }
 
 int ring_pop(ring_t *t, void *val)
-{
+{ 
   if (ring_empty(t))
     return 1;
 
@@ -63,4 +63,7 @@ int ring_empty(ring_t *t)
   return t->start == t->end;
 }
 
-
+uint32_t ring_size(ring_t *t)
+{
+  return t->end - t->start;
+}

@@ -18,4 +18,6 @@ int ring_full(ring_t *t);
 
 int ring_empty(ring_t *t);
 
+uint32_t ring_size(ring_t *t);
+
 #endif

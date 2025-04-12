@@ -4,6 +4,7 @@
 #include <string.h>
 
 // --- INTEGRATION TESTS ---
+
 int col_serialize_parse_test(void);
 int col_read_write_test(void);
 

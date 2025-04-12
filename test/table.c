@@ -4,6 +4,7 @@
 #include <string.h>
 
 /*--- INTEGRATION TESTS ---*/
+
 int table_serialize_parse_test(void);
 int table_read_write_test(void);
 

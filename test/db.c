@@ -6,6 +6,7 @@
 #include <time.h>
 
 /*--- INTEGRATION TESTS ---*/
+
 int db_table_init_get_free_test(void);
 
 int main(void)
