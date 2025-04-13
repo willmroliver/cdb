@@ -12,6 +12,11 @@ ifeq ($(DEBUG), 1)
 	builddir = debug
 endif
 
+NASMFLAGS = -f elf64
+ifeq ($(OS), macos)
+	NASMFLAGS = -f macho64
+endif
+
 srcs := $(shell find $(srcdir) -type f -name '*.c')
 asm := $(shell find $(srcdir)/asm -type f -name '*.s')
 tests := $(shell find $(testdir) -type f -name '*.c')
