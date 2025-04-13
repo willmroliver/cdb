@@ -46,10 +46,10 @@ int main(int argc, char** argv)
 int tpool_init_push_del_test(int n)
 {
   int i;
-  struct counter c = { 0 };
   struct tpool p;
   struct timespec t;
   size_t ns;
+  struct counter c = { 0 };
   
   tpool_init(&p, 1024);
   pthread_mutex_init(&c.mux, NULL);
@@ -59,14 +59,11 @@ int tpool_init_push_del_test(int n)
   for (i = 0; i < n; ++i)
     while (tpool_job_push(&p, job, &c));
 
-  while (!ring_empty(p.jobs));
-
   tpool_del(&p);
 
   ns = clock_timesince_nsec(CLOCK_REALTIME, &t);
 
   printf("%d tpool jobs - %.3f ms\n", c.n, (ns / 1e6));
-
   return c.n == n;
 }
 

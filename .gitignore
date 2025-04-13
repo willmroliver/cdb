@@ -4,4 +4,5 @@ build
 debug
 .cache
 dbs
+*.pdf
 
