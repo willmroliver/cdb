@@ -4,7 +4,7 @@ builddir = build
 testdir = test
 
 INCFLAGS = $(shell find $(incdir) -type d | sed 's/^/-I/' | tr '\n' ' ')
-CFLAGS = $(INCFLAGS) -Wall -Wextra -std=gnu89 -arch x86_64
+CFLAGS = $(INCFLAGS) -Wall -Wextra -std=gnu89
 
 DBUGFLAGS = -g
 ifeq ($(DEBUG), 1)
@@ -15,6 +15,7 @@ endif
 NASMFLAGS = -f elf64
 ifeq ($(OS), macos)
 	NASMFLAGS = -f macho64
+	CFLAGS += -arch x86_64
 endif
 
 srcs := $(shell find $(srcdir) -type f -name '*.c')
@@ -34,7 +35,7 @@ $(builddir)/%.o : $(srcdir)/%.c
 	$(CC) $(CFLAGS) -c $< -o $@ 
 
 $(builddir)/asm/%.o : $(srcdir)/asm/%.s
-	nasm -f macho64 -o $@ $<
+	nasm $(NASMFLAGS) -o $@ $<
 	
 $(builddir)/$(testdir)/% : $(testdir)/%.c $(objs) $(asm_objs) 
 	$(CC) $(CFLAGS) -o $@ $< $(objs) $(asm_objs)
