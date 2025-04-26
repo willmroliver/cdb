@@ -1,14 +1,24 @@
-#ifndef INC_FIBER_H
-#define INC_FIBER_H
+#ifndef INC_SCHED_FIBER_H
+#define INC_SCHED_FIBER_H
+
+#include "job.h"
 
 #include <stdint.h>
 
 struct __attribute__((packed)) fiber {
-  uint64_t rip;
-  uint64_t stack;
+	uint64_t size;
+	void *stack;
+	void *rip;
+	void *rsp;
+	struct job job;
 };
 
-extern uint64_t fiber_get_rip(struct fiber*);
-extern uint64_t fiber_get_stack(struct fiber*);
+void fiber_init(struct fiber *f, uint32_t size16);
+
+void fiber_del(struct fiber *f);
+
+void fiber_do(struct fiber *f, struct job j);
+
+void fiber_yield();
 
 #endif

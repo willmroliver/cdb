@@ -5,17 +5,17 @@
 #include <pthread.h>
 
 struct cmd {
-  char *str;
-  FILE *in;
-  struct cmd_ix *ix;
-  int size;
-  int run;
-  pthread_mutex_t mux;
+	char *str;
+	FILE *in;
+	struct cmd_ix *ix;
+	int size;
+	int run;
+	pthread_mutex_t mux;
 };
 
 struct cmd_ix {
-  int (*get)(struct cmd*);
-  void (*proc)(char*, size_t len);
+	int (*get)(struct cmd*);
+	void (*proc)(char*, size_t len);
 };
 
 int cmd_init(struct cmd *c, FILE *in, struct cmd_ix *ix, int size);

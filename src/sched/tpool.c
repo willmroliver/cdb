@@ -1,4 +1,5 @@
 #include "sched/tpool.h"
+#include "sched/job.h"
 
 #include <pthread.h>
 #include <unistd.h>
@@ -17,7 +18,7 @@ void tpool_init(struct tpool *p, uint32_t buf_len)
 	p->size = sysconf(_SC_NPROCESSORS_CONF);
 	p->run = 1;
 	p->pool = malloc(p->size * sizeof(pthread_t));
-	p->jobs = ring_alloc(buf_len, sizeof(struct tjob));
+	p->jobs = ring_alloc(buf_len, sizeof(struct job));
 
 	pthread_cond_init(&p->cond_job, NULL);
 	pthread_mutex_init(&p->job_mux, NULL);
@@ -47,14 +48,9 @@ void tpool_del(struct tpool *p)
 	ring_free(p->jobs);
 }
 
-int tpool_job_push(struct tpool *p, void *(*proc)(void*), void *arg)
+int tpool_job_push(struct tpool *p, struct job j)
 {
 	int err;
-
-	struct tjob j = {
-		.proc=proc,
-		.arg=arg,
-	};
 
 	pthread_mutex_lock(&p->job_mux);
 	if ((err = ring_push(p->jobs, &j)) == 0)
@@ -69,7 +65,7 @@ int tpool_job_push(struct tpool *p, void *(*proc)(void*), void *arg)
 void *tpool_routine(void *arg) 
 {
 	struct tpool *p = (struct tpool*)arg;
-	struct tjob j;
+	struct job j;
 
 	/* It looks like we could move this to the top of the while block, */
 	/* and remove the lock at the bottom, but this prevents us from */

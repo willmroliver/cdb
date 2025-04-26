@@ -10,13 +10,13 @@
 #define TABLE_SIZE_BYTES 2
 
 struct table {
-  char name[32];
-  uint16_t size;
-  struct col *cols;
+	char name[32];
+	uint16_t size;
+	struct col *cols;
 };
 
 struct table_schema {
-  char data[TABLE_SCHEMA_SIZE];  
+	char data[TABLE_SCHEMA_SIZE];  
 };
 
 struct table_schema *table_schema_alloc(void);

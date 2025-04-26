@@ -1,15 +1,11 @@
-#ifndef INC_TPOOL_H
-#define INC_TPOOL_H
+#ifndef INC_SCHED_TPOOL_H
+#define INC_SCHED_TPOOL_H
 
 #include "ds/ring.h"
+#include "job.h"
 
 #include <pthread.h>
 #include <stddef.h>
-
-struct tjob {
-  void *(*proc)(void*);
-  void *arg;
-};
 
 struct tpool {
   int size;
@@ -24,6 +20,6 @@ void tpool_init(struct tpool *p, uint32_t buf_len);
 
 void tpool_del(struct tpool *p);
 
-int tpool_job_push(struct tpool *p, void *(*proc)(void*), void *arg);
+int tpool_job_push(struct tpool *p, struct job j);
 
 #endif

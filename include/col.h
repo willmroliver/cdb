@@ -10,21 +10,21 @@
 #define COL_SIZE_BYTES 1
 
 typedef enum {
-  COL_INT = 1,
-  COL_FLOAT,
-  COL_STR,
-  COL_BLOB
+	COL_INT = 1,
+	COL_FLOAT,
+	COL_STR,
+	COL_BLOB
 } col_t;
 
 struct col {
-  char name[32];
-  uint8_t type;
-  uint8_t size;
-  void *val;
+	char name[32];
+	uint8_t type;
+	uint8_t size;
+	void *val;
 };
 
 struct col_schema {
-  char data[COL_SCHEMA_SIZE];
+	char data[COL_SCHEMA_SIZE];
 };
 
 struct col_schema *col_schema_alloc(void);

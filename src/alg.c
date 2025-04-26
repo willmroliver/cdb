@@ -55,7 +55,7 @@ void heap_sort(void *base, size_t nel, size_t width, int (*compar)(const void *,
 
 	size_t i, from = nel > 1 ? nel/2 - 1 : 0;
 
-	for (i = from; i >= 0; --i) {
+	for (i = from; ; --i) {
 		make_heap(cbase, nel, width, i, compar);
 		if (i == 0)
 			break;
@@ -64,7 +64,7 @@ void heap_sort(void *base, size_t nel, size_t width, int (*compar)(const void *,
 	hold = malloc(width);
 	from = nel > 0 ? nel - 1 : 0;
 
-	for (i = from; i >= 0; --i) {
+	for (i = from; ; --i) {
 		memcpy(hold, cbase, width);
 		memcpy(cbase, cbase + (i * width), width);
 		memcpy(cbase + (i * width), hold, width);

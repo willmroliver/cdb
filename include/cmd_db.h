@@ -4,10 +4,10 @@
 #include "cmd.h"
 
 struct cmd_db {
-  struct cmd_ix *ix;
-  struct db *db;
-  int (*get)(struct cmd*);
-  void (*proc)(char*);
+	struct cmd_ix *ix;
+	struct db *db;
+	int (*get)(struct cmd*);
+	void (*proc)(char*);
 };
 
 void cmd_db_init(struct cmd_db* ix);

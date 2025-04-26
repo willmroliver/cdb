@@ -47,6 +47,7 @@ int tpool_init_push_del_test(int n)
 {
 	int i;
 	struct tpool p;
+	struct job j;
 	struct timespec t;
 	size_t ns;
 	struct counter c = { 0 };
@@ -56,8 +57,11 @@ int tpool_init_push_del_test(int n)
 
 	clock_gettime(CLOCK_REALTIME, &t);
 
+	j.proc = job;
+	j.arg = &c;
+
 	for (i = 0; i < n; ++i)
-		while (tpool_job_push(&p, job, &c));
+		while (tpool_job_push(&p, j));
 
 	tpool_del(&p);
 

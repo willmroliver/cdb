@@ -2,7 +2,7 @@
 #define INC_RING_BUF_H
 
 #include <stddef.h>
-#include <stdlib.h>
+#include <stdint.h>
 
 typedef struct ring ring_t;
 
