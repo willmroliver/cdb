@@ -6,18 +6,19 @@ bits 64
 section .text
 
 define fiber_run
+	push rbp
 	push rdi
 	mov rbp, rsp
 
+	mov [rdi + fiber.job_proc], rsi
+	mov [rdi + fiber.job_arg], rdx
+
 	mov rsi, [rsp + 24]
 	mov [rdi + fiber.rip], rsi
-	mov rdx, [rdi + fiber.stack]
-	add rdx, qword [rdi + fiber.size]
-	mov rsp, rdx
-
+	mov rsp, [rdi + fiber.stack]
+	add rsp, [rdi + fiber.size]
+	sub rsp, 8
 	and rsp, -16
-	; -16 = -8 (last address) -8 (preserve 16-byte alignment before pseudo-call below)
-	sub rsp, 16
 	lea rax, [rel .done]
 	push rax
 
@@ -26,6 +27,8 @@ define fiber_run
 	jmp rcx
 .done:
 	mov rsp, rbp
+	pop rdi
+	pop rbp
 	ret
 	
 define fiber_yield
