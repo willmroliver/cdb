@@ -19,9 +19,9 @@ void fiber_del(struct fiber *f);
 
 /* --- ASM METHODS BEGIN --- */
 
-extern void fiber_run(struct fiber *f, struct job j);
+extern void fiber_run(struct fiber *f);
 
-extern void fiber_yield(struct fiber *f);
+extern void fiber_yield(void *arg);
 
 /* --- ASM METHODS END --- */
 

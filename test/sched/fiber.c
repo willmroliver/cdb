@@ -8,19 +8,20 @@ void *job(void*);
 int main() 
 {
 	struct fiber f;
-	struct job j = {
-		.proc=job,
-		.arg=NULL,
-	};
-
 	fiber_init(&f, 1024);
-	fiber_run(&f, j);
+	f.job.proc = job; 
+	f.job.arg = "Hello, Fiber!";
+
+	fiber_run(&f);
+	fiber_run(&f);
 	
 	return 0;
 }
 
-void *job(void* arg) 
+void *job(void *arg) 
 {
-	printf("Hello, Fiber!\n");
+	printf("%s\n", *(char**)arg);
+	fiber_yield(arg);
+	printf("Back again?\n");
 	return arg;
 }

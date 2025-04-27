@@ -6,6 +6,8 @@ void fiber_init(struct fiber *f, uint32_t size16)
 {
 	f->size = 16 * size16;
 	f->stack = size16 ? malloc(16 * size16) : NULL;
+	f->rip = NULL;
+	f->rsp = NULL;
 }
 
 void fiber_del(struct fiber *f)

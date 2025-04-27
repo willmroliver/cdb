@@ -5,39 +5,64 @@ bits 64
 
 section .text
 
-define fiber_run
+define fiber_run	
+	; if set, return to where we yielded
+	cmp qword [rdi + fiber.rip], 0
+	jne .continue
+
 	push rbp
-	push rdi
 	mov rbp, rsp
 
-	mov [rdi + fiber.job_proc], rsi
-	mov [rdi + fiber.job_arg], rdx
-
-	mov rsi, [rsp + 24]
-	mov [rdi + fiber.rip], rsi
+	; setup stack
 	mov rsp, [rdi + fiber.stack]
 	add rsp, [rdi + fiber.size]
 	sub rsp, 8
 	and rsp, -16
+	
+	; allocate space for void *arg & fiber pointer
+	sub rsp, 32
+	mov [rsp + 16], rbp
+	mov [rsp + 8], rdi
+	mov rcx, [rdi + fiber.job_arg]
+	mov [rsp], rcx
+
+	; set fiber.rip to return address of this routine call
+	mov rcx, [rbp + 8]
+	mov [rdi + fiber.rip], rcx
+
+	; do job 
 	lea rax, [rel .done]
 	push rax
-
-	mov rcx, [rdi + fiber.job_proc]
-	mov rdi, [rdi + fiber.job_arg]
-	jmp rcx
+	mov rax, rdi
+	lea rdi, [rsp + 8]
+	jmp [rax + fiber.job_proc]
 .done:
 	mov rsp, rbp
-	pop rdi
 	pop rbp
 	ret
-	
+.continue:
+	jmp [rdi + fiber.rip]
+
+
 define fiber_yield
-	mov rax, [rbp + 8]
-	mov rcx, [rsp + 8]
-	mov [rax + fiber.rsp], rsp
-	mov [rax + fiber.rip], rcx 
-.done:
-	mov rsp, rbp
-	pop rax
+	mov rcx, [rdi + 8]
+	mov rsi, [rcx + fiber.rip]    ; old rip
+	push rsi		      
+
+	lea rdx, [rel .continue]	    
+	mov [rcx + fiber.rip], rdx    ; return here later 
+	mov [rcx + fiber.rsp], rsp    ; restore stack later
+
+	mov rsp, [rdi + 16]
+	pop rbp
+
+	add rsp, 8		      ; pseudo ret
+	jmp rsi 
+.continue:
+	push rbp
+	mov rbp, rsp
+	mov rsp, [rdi + fiber.rsp]
+
+	pop qword [rdi + fiber.rip]
 	ret
 

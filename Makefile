@@ -4,7 +4,7 @@ builddir = build
 testdir = test
 
 INCFLAGS = $(shell find $(incdir) -type d | sed 's/^/-I/' | tr '\n' ' ')
-CFLAGS = $(INCFLAGS) -Wall -Wextra -std=gnu89
+CFLAGS = $(INCFLAGS) -Wall -Wextra -std=gnu89 -fno-omit-frame-pointer
 NASMFLAGS = -I$(incdir)/asm
 LIB = $(builddir)/lib.so
 
