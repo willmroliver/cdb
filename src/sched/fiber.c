@@ -5,7 +5,7 @@
 void fiber_init(struct fiber *f, uint32_t size16)
 {
 	f->size = 16 * size16;
-	f->stack = malloc(16 * size16);
+	f->stack = size16 ? malloc(16 * size16) : NULL;
 }
 
 void fiber_del(struct fiber *f)
@@ -18,11 +18,4 @@ void fiber_del(struct fiber *f)
 
 	free(f);
 }
-
-void fiber_do(struct fiber *f, struct job j)
-{
-
-}
-
-void fiber_yield();
 

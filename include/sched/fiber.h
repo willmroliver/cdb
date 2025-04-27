@@ -17,8 +17,12 @@ void fiber_init(struct fiber *f, uint32_t size16);
 
 void fiber_del(struct fiber *f);
 
-void fiber_do(struct fiber *f, struct job j);
+/* --- ASM METHODS BEGIN --- */
 
-void fiber_yield();
+extern void fiber_run(struct fiber *f, struct job j);
+
+extern void fiber_yield(struct fiber *f);
+
+/* --- ASM METHODS END --- */
 
 #endif

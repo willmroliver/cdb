@@ -1,11 +1,5 @@
 #include "sched/spindle.h"
 
-/* --- ASM METHODS BEGIN --- */
-
-extern void spindle_hijack();
-
-/* --- ASM METHODS END --- */
-
 void spindle_init(struct spindle *s, uint32_t size)
 {
 	uint32_t i;
@@ -18,8 +12,6 @@ void spindle_init(struct spindle *s, uint32_t size)
 		fiber_init(&f, 0x1000);
 		ring_push(s->idle, &f);
 	}
-
-	spindle_hijack();
 }
 
 void spindle_del(struct spindle *s)

@@ -11,6 +11,7 @@ LIB = $(builddir)/lib.so
 DBUGFLAGS = -g
 ifeq ($(DEBUG), 1)
 	CFLAGS += $(DBUGFLAGS)
+	NASMFLAGS += $(DBUGFLAGS)
 	builddir = debug
 endif
 
@@ -19,7 +20,7 @@ ifeq ($(OS), macos)
 	NASMFLAGS += -f macho64 -D__MACH__	
 	LIB = $(builddir)/lib.dylib
 else
-	CFLAGS += -z noexecstack
+	CFLAGS += -z noexecstack -fPIC
 	NASMFLAGS += -f elf64 -D__linux__
 endif
 
@@ -37,7 +38,7 @@ dirs :
 	@mkdir -p $(dir $(objs)) $(dir $(test_exes)) $(dir $(asm_objs)) 
 
 $(builddir)/%.o : $(srcdir)/%.c
-	$(CC) $(CFLAGS) -fPIC -c $< -o $@ 
+	$(CC) $(CFLAGS) -c $< -o $@ 
 
 $(builddir)/asm/%.o : $(srcdir)/asm/%.s
 	nasm $(NASMFLAGS) -o $@ $<
@@ -52,3 +53,4 @@ $(builddir)/$(testdir)/% : $(testdir)/%.c
 
 clean :
 	-rm -r $(builddir)/*
+
