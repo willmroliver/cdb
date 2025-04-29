@@ -24,9 +24,11 @@
 	push r13
 	push r14
 	push r15
+	pushf
 %endmacro
 
 %macro popall 0
+	popf
 	pop r15
 	pop r14
 	pop r13

@@ -8,6 +8,7 @@ void *job(void*);
 int main() 
 {
 	struct fiber f;
+
 	fiber_init(&f, 1024);
 	f.job.proc = job; 
 	f.job.arg = "Hello, Fiber!";
