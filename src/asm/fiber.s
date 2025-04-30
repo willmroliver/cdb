@@ -47,7 +47,7 @@ define fiber_run
 define fiber_yield
 	mov rcx, [rdi + 8]
 	mov rsi, [rcx + fiber.rip]    ; old rip
-	push rsi		      
+	pushall
 
 	lea rdx, [rel .continue]	    
 	mov [rcx + fiber.rip], rdx    ; return here later 
@@ -63,6 +63,7 @@ define fiber_yield
 	mov rbp, rsp
 	mov rsp, [rdi + fiber.rsp]
 
-	pop qword [rdi + fiber.rip]
+	popall
+	mov [rdi + fiber.rip], rsi
 	ret
 
