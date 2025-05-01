@@ -7,3 +7,4 @@ dbs
 books
 .asm-lsp.toml
 
+*.sh

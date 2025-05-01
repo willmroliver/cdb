@@ -6,7 +6,7 @@
 #include "ds/ring.h"
 
 struct __attribute__((packed)) spindle {
-	struct fiber *active;
+	fiber_t *active;
 	ring_t *idle;
 	ring_t *busy;
 };

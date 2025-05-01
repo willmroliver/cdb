@@ -12,9 +12,9 @@
 
 void db_fs_init(struct db_fs *fs)
 {
-	fs->ix->open = db_fs_open;
-	fs->ix->table_open = db_fs_table_open;
-	fs->ix->table_save = db_fs_table_save;
+	fs->ix.open = db_fs_open;
+	fs->ix.table_open = db_fs_table_open;
+	fs->ix.table_save = db_fs_table_save;
 }
 
 int db_fs_open(struct db *d, char *path)

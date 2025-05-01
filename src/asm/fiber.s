@@ -25,6 +25,7 @@ define fiber_run
 	mov [rsp + 8], rdi
 	mov rcx, [rdi + fiber.job_arg]
 	mov [rsp], rcx
+	mov [rdi + fiber.meta], rsp
 
 	; set fiber.rip to return address of this routine call
 	mov rcx, [rbp + 8]
@@ -45,15 +46,15 @@ define fiber_run
 
 
 define fiber_yield
-	mov rcx, [rdi + 8]
-	mov rsi, [rcx + fiber.rip]    ; old rip
-	pushall
+	mov rsi, [rdi + fiber.rip]    ; old rip
+	pushcallee
 
 	lea rdx, [rel .continue]	    
-	mov [rcx + fiber.rip], rdx    ; return here later 
-	mov [rcx + fiber.rsp], rsp    ; restore stack later
+	mov [rdi + fiber.rip], rdx    ; return here later 
+	mov [rdi + fiber.rsp], rsp    ; restore stack later
 
-	mov rsp, [rdi + 16]
+	mov rdx, [rdi + fiber.meta]
+	mov rsp, [rdx + 16]
 	pop rbp
 
 	add rsp, 8		      ; pseudo ret
@@ -63,7 +64,12 @@ define fiber_yield
 	mov rbp, rsp
 	mov rsp, [rdi + fiber.rsp]
 
-	popall
+	popcallee
 	mov [rdi + fiber.rip], rsi
+	ret
+
+
+define fiber_self
+	mov rax, [rdi + 8]
 	ret
 

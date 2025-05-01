@@ -6,7 +6,7 @@
 #include <stddef.h>
 
 struct db_fs {
-	struct db_ix *ix;
+	struct db_ix ix;
 	char path[256];
 	char* tables;
 };

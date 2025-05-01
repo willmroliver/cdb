@@ -1,9 +1,8 @@
 #include "sched/fiber.h"
-#include "job.h"
+#include "sched/job.h"
 
 #include <stdio.h>
 #include <string.h>
-
 
 /* --- HELPERS --- */
 
@@ -32,14 +31,15 @@ int main()
 
 int fiber_run_yield_run_test()
 {
+	fiber_t f;
 	char buf[32];
-
-	struct fiber f = { .job={
+	struct job j = {
 		.proc=simple_job,
 		.arg=buf,
-	} };
+	};
 
 	fiber_init(&f, 1024);
+	fiber_do(&f, j);
 
 	fiber_run(&f);
 	fiber_run(&f);
@@ -50,15 +50,15 @@ int fiber_run_yield_run_test()
 int fiber_many_share_mem_test()
 {
 	int i, n = 10, c = 0;
-	struct fiber f[n];
+	fiber_t f[n];
 	struct job j = {
 		.proc=counter_job,
 		.arg=&c,
 	};
 
 	for (i = 0; i < n; ++i) {
-		f[i].job = j;
 		fiber_init(f + i, 1024);
+		fiber_do(f + i, j);
 		fiber_run(f + i);
 	}
 
@@ -72,10 +72,11 @@ int fiber_many_share_mem_test()
 
 void *simple_job(void *arg) 
 {
+	fiber_t *f = fiber_self(arg);
 	char *buf = *(char**)arg; 
 
 	snprintf(buf, 32, "Hello, Fiber!");
-	fiber_yield(arg);
+	fiber_yield(f);
 	snprintf(buf, 32, "%s", "Finishing job..");
 
 	return arg;
@@ -83,9 +84,11 @@ void *simple_job(void *arg)
 
 void *counter_job(void *arg)
 {
+	fiber_t *f = fiber_self(arg);
 	int *c = *(int**)arg;
+
 	*c = *c + 1;
-	fiber_yield(arg);
+	fiber_yield(f);
 	*c = *c + 1;
 	return arg;
 }

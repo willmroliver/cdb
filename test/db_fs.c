@@ -33,7 +33,6 @@ int db_open_test(void)
 	int passed;
 	struct db d;
 	struct db_fs fs;
-	struct db_ix *ix = (struct db_ix*)&fs;
 	char buf[256];
 	struct table *t;
 	struct col *c;
@@ -46,7 +45,7 @@ int db_open_test(void)
 	gen_table_file(path, dbname, tname, ncols, ctype, csize);
 
 	snprintf(buf, sizeof(buf), "%s/%s", path, dbname);
-	db_open(&d, ix, buf);
+	db_open(&d, &fs.ix, buf);
 
 	passed = 
 		strcmp(dbname, d.name) == 0 &&

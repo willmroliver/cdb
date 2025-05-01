@@ -1,9 +1,9 @@
 #include "cmd_db.h"
 
-void cmd_db_init(struct cmd_db *ix) 
+void cmd_db_init(struct cmd_db *db) 
 {
-	ix->get = cmd_db_get;
-	ix->proc = cmd_db_proc;
+	db->ix.get = cmd_db_get;
+	db->ix.proc = cmd_db_proc;
 }
 
 int cmd_db_get(struct cmd *c) 
@@ -12,7 +12,7 @@ int cmd_db_get(struct cmd *c)
 	return 0;
 }
 
-void cmd_db_proc(char *cmd) 
+void cmd_db_proc(char *cmd, size_t len) 
 {
 	/*@todo - implement cmd procedure*/
 	return;

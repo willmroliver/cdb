@@ -3,10 +3,10 @@
 void spindle_init(struct spindle *s, uint32_t size)
 {
 	uint32_t i;
-	struct fiber f;
+	fiber_t f;
 
-	s->idle = ring_alloc(size, sizeof(struct fiber));
-	s->busy = ring_alloc(size, sizeof(struct fiber));
+	s->idle = ring_alloc(size, sizeof(fiber_t));
+	s->busy = ring_alloc(size, sizeof(fiber_t));
 
 	for (i = 0; i < size; ++i) {
 		fiber_init(&f, 0x1000);
@@ -16,18 +16,18 @@ void spindle_init(struct spindle *s, uint32_t size)
 
 void spindle_del(struct spindle *s)
 {
-	struct fiber f;
+	fiber_t *f;
 
 	if (s == NULL)
 		return;
 
 	while (!ring_empty(s->idle)) {
 		ring_pop(s->idle, &f);
-		fiber_del(&f);
+		fiber_del(f);
 	}
 	while (!ring_empty(s->busy)) {
 		ring_pop(s->busy, &f);
-		fiber_del(&f);
+		fiber_del(f);
 	}
 
 	ring_free(s->idle);
@@ -36,12 +36,12 @@ void spindle_del(struct spindle *s)
 
 int spindle_do(struct spindle *s, struct job j)
 {
-	struct fiber f;
+	fiber_t *f;
 
 	if (ring_empty(s->idle) || ring_pop(s->idle, &f))
 		return -1;
 
-	f.job = j;
+	fiber_do(f, j);
 
 	if (ring_push(s->busy, &f))
 		return -1;
