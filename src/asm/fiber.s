@@ -35,6 +35,8 @@ define fiber_run
 	lea rax, [rel .done]
 	push rax
 	mov rax, rdi
+
+	; pseudo call
 	lea rdi, [rsp + 8]
 	jmp [rax + fiber.job_proc]
 .done:
@@ -42,19 +44,23 @@ define fiber_run
 	pop rbp
 	ret
 .continue:
-	jmp [rdi + fiber.rip]
+	; update return addr to latest fiber_run()
+	mov rsi, [rdi + fiber.rip]
+	mov rdx, [rsp]
+	mov [rdi + fiber.rip], rdx
+	jmp rsi
 
 
 define fiber_yield
-	mov rsi, [rdi + fiber.rip]    ; old rip
+	mov rsi, [rdi + fiber.rip]    ; fiber_run return addr 
 	pushcallee
 
-	lea rdx, [rel .continue]	    
-	mov [rdi + fiber.rip], rdx    ; return here later 
+	lea rdx, [rel .continue]      ; next fiber_run resumes here	    
+	mov [rdi + fiber.rip], rdx     
 	mov [rdi + fiber.rsp], rsp    ; restore stack later
 
 	mov rdx, [rdi + fiber.meta]
-	mov rsp, [rdx + 16]
+	mov rsp, [rdx + 16]	      ; original stack in meta
 	pop rbp
 
 	add rsp, 8		      ; pseudo ret
@@ -65,11 +71,10 @@ define fiber_yield
 	mov rsp, [rdi + fiber.rsp]
 
 	popcallee
-	mov [rdi + fiber.rip], rsi
 	ret
 
 
 define fiber_self
 	mov rax, [rdi + 8]
 	ret
-
+	

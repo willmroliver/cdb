@@ -5,7 +5,7 @@
 
 #include <stdint.h>
 
-typedef struct __attribute__((packed)) fiber {
+typedef struct __attribute__((packed)) {
 	uint64_t size;
 	void *stack;
 	void *meta;

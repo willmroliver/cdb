@@ -7,4 +7,3 @@ struc fiber
 	.job_proc resq 1
 	.job_arg  resq 1
 endstruc
-
