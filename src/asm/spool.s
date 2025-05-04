@@ -30,8 +30,7 @@ define spool_try
 define spool_wait
 .test:
 	xor rax, rax
-	xor rcx, rcx
-	bts rcx, 0
+	mov rcx, 1
 
 	lock cmpxchg [rdi], rcx
 	jnz .yield
@@ -67,3 +66,21 @@ define spool_bearer
 	mov rax, [rdi + 8]
 	ret
 
+
+define spool_inc
+	lock add qword [rdi], 1
+	ret
+
+
+define spool_dec
+.loop:
+	mov rax, [rdi]
+	test rax, rax
+	jz .done
+
+	mov rcx, rax
+	sub rcx, 1
+	lock cmpxchg [rdi], rcx
+	jnz .loop
+.done:
+	ret

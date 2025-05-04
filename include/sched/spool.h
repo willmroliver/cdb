@@ -23,12 +23,8 @@ extern int spool_release(spool_t *s, fiber_t *f);
 
 extern fiber_t *spool_bearer(spool_t *s);
 
-/* int spool_inc(spool_t *s); */
+void spool_inc(spool_t *s);
 
-/* int spool_dec(spool_t *s); */
-
-/* int spool_wake_one(spool_t *s); */
-
-/* int spool_wake_all(spool_t *s); */
+void spool_dec(spool_t *s);
 
 #endif
