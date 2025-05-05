@@ -68,7 +68,14 @@ define spool_bearer
 
 
 define spool_inc
-	lock add qword [rdi], 1
+.loop:
+	mov rax, [rdi]
+	mov rcx, rax
+	add rcx, 1
+	lock cmpxchg [rdi], rcx
+	jnz .loop
+
+	mov rax, rcx
 	ret
 
 
@@ -82,5 +89,7 @@ define spool_dec
 	sub rcx, 1
 	lock cmpxchg [rdi], rcx
 	jnz .loop
+
+	mov rax, rcx
 .done:
 	ret

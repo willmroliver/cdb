@@ -48,7 +48,7 @@ int fiber_run_yield_run_test()
 	assert(fiber_flags_test(&f, FIBER_YIELDED | FIBER_RUNNING | FIBER_READY));
 	fiber_run(&f);
 	assert(fiber_flags_test(&f, FIBER_DONE));
-	assert(fiber_flags_test(&f, ~FIBER_RUNNING & ~FIBER_YIELDED));
+	assert(!fiber_flags_test(&f, FIBER_RUNNING));
 
 	return strcmp(buf, "Finishing job..") == 0;
 }

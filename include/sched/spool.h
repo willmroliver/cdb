@@ -15,6 +15,8 @@ typedef struct __attribute__((packed)) {
 
 void spool_init(spool_t *s);
 
+/* --- ASM METHODS BEGIN --- */
+
 extern int spool_try(spool_t *s, fiber_t *f);
 
 extern int spool_wait(spool_t *s, fiber_t *f);
@@ -23,8 +25,10 @@ extern int spool_release(spool_t *s, fiber_t *f);
 
 extern fiber_t *spool_bearer(spool_t *s);
 
-void spool_inc(spool_t *s);
+extern uint64_t spool_inc(spool_t *s);
 
-void spool_dec(spool_t *s);
+extern uint64_t spool_dec(spool_t *s);
+
+/* --- ASM METHODS END --- */
 
 #endif
