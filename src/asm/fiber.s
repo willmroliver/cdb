@@ -66,10 +66,12 @@ define fiber_run
 	lea rdi, [rsp + 8]
 	jmp [rax + fiber.job_proc]
 .done:
+	; if recurring, re-run
 	mov rdi, [rsp + 8]
 	bt qword [rdi + fiber.flags], FIBER_RECURRING
 	jc .run
 
+	; else mark done and ret
 	and qword [rdi + fiber.flags], ~FIBER_RUNNING
 	or qword [rdi + fiber.flags], FIBER_DONE
 

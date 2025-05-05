@@ -79,7 +79,7 @@ int db_fs_open(struct db *d, char *path)
 int db_fs_table_open(struct db *d, struct table* t, char* tname)
 {
 	FILE *f = NULL;
-	char fbuf[256];
+	char fbuf[512];
 	char sbuf[COL_SCHEMA_SIZE > TABLE_SCHEMA_SIZE ? COL_SCHEMA_SIZE : TABLE_SCHEMA_SIZE];
 	uint16_t ncols = 0;
 	struct table_schema ts = { 0 };
@@ -114,7 +114,7 @@ int db_fs_table_open(struct db *d, struct table* t, char* tname)
 
 int db_fs_table_save(struct db *d, struct table* t, char* tname)
 {
-	char fbuf[256];
+	char fbuf[512];
 	FILE *f = NULL;
 	struct table_schema ts = { 0 };
 	struct col_schema cs = { 0 };

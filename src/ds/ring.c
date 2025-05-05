@@ -37,9 +37,9 @@ void ring_free(ring_t *t)
 int ring_push(ring_t *t, void *val)
 {
 	if (ring_full(t))
-		return 1;
+		return -1;
 
-	memcpy(t->data + t->width * (t->end & t->nel-1), val, t->width);
+	memcpy(t->data + t->width * (t->end & (t->nel-1)), val, t->width);
 	t->end = (t->end + 1) & (2*t->nel - 1);
 	return 0;
 }
@@ -47,9 +47,9 @@ int ring_push(ring_t *t, void *val)
 int ring_pop(ring_t *t, void *val)
 { 
 	if (ring_empty(t))
-		return 1;
+		return -1;
 
-	memcpy(val, t->data + t->width * (t->start & t->nel-1), t->width);
+	memcpy(val, t->data + t->width * (t->start & (t->nel-1)), t->width);
 	t->start = (t->start + 1) & (2*t->nel - 1);
 	return 0;
 }
