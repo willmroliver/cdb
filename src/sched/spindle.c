@@ -25,6 +25,7 @@ void spindle_del(struct spindle *s)
 		ring_pop(s->idle, &f);
 		fiber_del(f);
 	}
+
 	while (!ring_empty(s->busy)) {
 		ring_pop(s->busy, &f);
 		fiber_del(f);

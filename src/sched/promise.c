@@ -33,3 +33,4 @@ void *promise_wait(struct promise *p, fiber_t* f)
 	spool_wait((spool_t*)p, f);
 	return p->value;	
 }
+

@@ -14,13 +14,13 @@ void *wait_job(void *arg);
 
 /* --- INTEGRATION TESTS --- */
 
-int promise_resolve_test(int);
+int promise_wait_resolve_test(int);
 
 int main()
 {
 	int passed =
-		promise_resolve_test(1) &&
-		promise_resolve_test(100);
+		promise_wait_resolve_test(1) &&
+		promise_wait_resolve_test(100);
 
 	printf("promise tests %s\n", passed ? "passed" : "failed");
 	return 0;
@@ -28,7 +28,7 @@ int main()
 
 /* --- INTEGRATION TESTS --- */
 
-int promise_resolve_test(int n)
+int promise_wait_resolve_test(int n)
 {
 	int i;
 	fiber_t f[n + 1];
