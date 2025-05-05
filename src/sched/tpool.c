@@ -23,9 +23,8 @@ void tpool_init(struct tpool *p, uint32_t buf_len)
 	pthread_cond_init(&p->cond_job, NULL);
 	pthread_mutex_init(&p->job_mux, NULL);
 
-	for (i = 0; i < p->size; ++i) {
+	for (i = 0; i < p->size; ++i)
 		pthread_create(p->pool + i, NULL, tpool_routine, p);
-	}
 }
 
 void tpool_del(struct tpool *p) 
@@ -69,7 +68,7 @@ void *tpool_routine(void *arg)
 
 	/* It looks like we could move this to the top of the while block, */
 	/* and remove the lock at the bottom, but this prevents us from */
-	/* unconditionally unlocking as we exit the routine... */
+	/* unconditionally unlocking as we exit... */
 	pthread_mutex_lock(&p->job_mux);
 
 	while (1) {

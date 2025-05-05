@@ -52,7 +52,7 @@ int tpool_init_push_del_test(int n)
 	size_t ns;
 	struct counter c = { 0 };
 
-	tpool_init(&p, 1024);
+	tpool_init(&p, 0x4000);
 	pthread_mutex_init(&c.mux, NULL);
 
 	clock_gettime(CLOCK_REALTIME, &t);
