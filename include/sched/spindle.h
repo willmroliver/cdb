@@ -4,11 +4,13 @@
 #include "fiber.h"
 #include "job.h"
 #include "ds/ring.h"
+#include "ds/dl_list.h"
 
 struct __attribute__((packed)) spindle {
-	fiber_t *active;
+	fiber_t *fibers;
+	fiber_t *running;
 	ring_t *idle;
-	ring_t *busy;
+	dl_list_t *busy;
 };
 
 void spindle_init(struct spindle *s, uint32_t size);

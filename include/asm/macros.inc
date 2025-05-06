@@ -22,7 +22,7 @@
 ; PI extern call
 %macro externcall 1
 	%ifdef __MACH__
-		call _%1 wrt ..plt
+		call _%1
 	%else
 		call %1 wrt ..plt
 	%endif
