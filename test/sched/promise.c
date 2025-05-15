@@ -59,6 +59,9 @@ int promise_wait_resolve_test(int n)
 	fiber_run(f);
 	assert(fiber_flags_test(f, FIBER_DONE));
 
+	for (i = 0; i < n; ++i)
+		if (*((int*)p.value + i) != N)
+			return 0;
 	return 1;
 }
 

@@ -1,5 +1,6 @@
 #include "ds/ring.h"
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -66,5 +67,5 @@ int ring_empty(ring_t *t)
 
 uint32_t ring_size(ring_t *t)
 {
-	return t->end - t->start;
+	return (t->end - t->start) & (2*t->nel - 1);
 }

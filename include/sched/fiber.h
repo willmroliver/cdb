@@ -13,6 +13,7 @@
 #define FIBER_RECURRING	  0x10	/* fiber restarts job on completion */
 
 /* fiber_t represents a unit of resource to execute work co-operatively */
+/**/
 /* most of these fields should not be directly manipulated in C */
 typedef struct __attribute__((packed)) {
 	uint64_t size;
