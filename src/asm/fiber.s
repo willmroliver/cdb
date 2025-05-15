@@ -18,16 +18,15 @@ bits 64
 ;
 ; above is in decending order, or ascending from job_arg,
 ; allowing us to use job_arg as the anchor for finding
-; the meta (so long as its passed to internal fiber routines).
+; the meta (so long as it is passed to internal fiber routines).
 
 section .text
 
 define fiber_run
 	; if not ready or done, ret
 	mov rsi, qword [rdi + fiber.flags]
-	mov rdx, rsi
-	and rdx, (FIBER_READY) | (FIBER_DONE)
-	cmp rdx, FIBER_READY
+	and rsi, (FIBER_READY) | (FIBER_DONE)
+	cmp rsi, FIBER_READY
 	je .init
 	ret
 .init:
@@ -60,7 +59,7 @@ define fiber_run
 	lea rax, [rel .done]
 	push rax
 	mov rax, rdi
-	bts qword [rdi + fiber.flags], FIBER_RUNNING
+	or qword [rdi + fiber.flags], FIBER_RUNNING
 
 	; pseudo call
 	lea rdi, [rsp + 8]
@@ -68,8 +67,10 @@ define fiber_run
 .done:
 	; if recurring, re-run
 	mov rdi, [rsp + 8]
-	bt qword [rdi + fiber.flags], FIBER_RECURRING
-	jc .run
+	mov rsi, [rdi + fiber.flags]
+	and rsi, FIBER_RECURRING
+	test rsi, rsi
+	jnz .run
 
 	; else mark done and ret
 	and qword [rdi + fiber.flags], ~FIBER_RUNNING
@@ -94,7 +95,7 @@ define fiber_yield
 	mov [rdi + fiber.rip], rdx     
 	mov [rdi + fiber.rsp], rsp    ; restore stack later
 
-	bts qword [rdi + fiber.flags], FIBER_YIELDED
+	or qword [rdi + fiber.flags], FIBER_YIELDED
 
 	mov rdx, [rdi + fiber.meta]
 	mov rsp, [rdx + 16]	      ; original stack in meta
@@ -108,7 +109,7 @@ define fiber_yield
 	mov rbp, rsp
 	mov rsp, [rdi + fiber.rsp]
 
-	btc qword [rdi + fiber.flags], FIBER_YIELDED
+	and qword [rdi + fiber.flags], ~FIBER_YIELDED
 
 	popcallee
 	ret
