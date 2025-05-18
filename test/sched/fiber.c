@@ -51,7 +51,7 @@ int fiber_run_yield_run_test()
 	fiber_do(&f, j);
 
 	fiber_run(&f);
-	assert(fiber_flags_test(&f, FIBER_YIELDED | FIBER_RUNNING | FIBER_READY));
+	assert(f.flags == (FIBER_YIELDED | FIBER_RUNNING | FIBER_READY));
 	fiber_run(&f);
 	assert(fiber_flags_test(&f, FIBER_DONE));
 	assert(!fiber_flags_test(&f, FIBER_RUNNING));
@@ -118,7 +118,17 @@ int fiber_recurring_test()
 
 int fiber_hijack_test()
 {
-	return fiber_hijack() != (void*)-1;
+	fiber_t *f = fiber_hijack();
+
+	return f != NULL && 
+		f->size == (uint64_t)-1 &&
+		fiber_flags_test(f, FIBER_READY) &&
+		fiber_flags_test(f, FIBER_RUNNING) &&
+		f->meta == NULL &&
+		f->rip == NULL &&
+		f->rsp == NULL &&
+		f->job.proc == NULL &&
+		f->job.arg == NULL;
 }
 
 /* --- HELPERS --- */

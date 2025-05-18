@@ -142,10 +142,21 @@ define fiber_hijack
 	syscall
 
 	cmp rax, -1
-	je .done
+	je .fail
 
 	; @todo - configure a usable fiber 
 	; for the existing call stack
+	mov qword [rax + fiber.size], -1 
+	mov qword [rax + fiber.flags], FIBER_READY | FIBER_RUNNING
+	mov qword [rax + fiber.stack], rsp
+	mov qword [rax + fiber.meta], 0
+	mov qword [rax + fiber.rip], 0
+	mov qword [rax + fiber.rsp], 0
+	mov qword [rax + fiber.job_proc], 0 
+	mov qword [rax + fiber.job_arg], 0
+	jmp .done
+.fail:
+	xor rax, rax
 .done:
 	add rsp, 8
 	ret
