@@ -19,11 +19,17 @@ int fiber_many_share_mem_test();
 
 int fiber_recurring_test();
 
+/* --- UNIT TESTS --- */
+
+int fiber_hijack_test();
+
 int main() 
 {
 	int passed =
 		fiber_run_yield_run_test() &&
-		fiber_many_share_mem_test();
+		fiber_many_share_mem_test() &&
+		fiber_recurring_test() &&
+		fiber_hijack_test();
 
 	printf(passed ? "fiber tests passed\n" : "fiber tests failed\n");
 
@@ -87,23 +93,32 @@ int fiber_recurring_test()
 	fiber_do(&f, j);
 	fiber_set_recurring(&f, 1);
 
-	for (i = 0; i < n - 1; ++i) {
-		fiber_run(&f);
+	for (i = 0; i < n; ++i) {
 		fiber_run(&f);
 		assert(!fiber_flags_test(&f, FIBER_DONE));
 	}
 
 	fiber_set_recurring(&f, 0);
 	fiber_run(&f);
-	fiber_run(&f);
 	assert(fiber_flags_test(&f, FIBER_DONE));
 
 	/* once done, does nothing */
-	for (i = 0; i < n; ++i)
+	for (i = 0; i < 3; ++i)
 		fiber_run(&f);
-	assert(c == 10);
+
+	/* fiber does not yield before re-running, */
+	/* so after first fiber_run call, counter_job  */
+	/* increments c twice before yielding again */
+	assert(c == 20);
 
 	return 1;
+}
+
+/* --- UNIT TESTS --- */
+
+int fiber_hijack_test()
+{
+	return fiber_hijack() != (void*)-1;
 }
 
 /* --- HELPERS --- */
@@ -130,3 +145,4 @@ void *counter_job(void *arg)
 	*c = *c + 1;
 	return arg;
 }
+

@@ -9,6 +9,12 @@ bits 64
 %define FIBER_DONE	  0x08
 %define FIBER_RECURRING	  0x10
 
+%define PROT_READ   0x1
+%define PROT_WRITE  0x2
+
+%define MAP_PRIVATE   0x02
+%define MAP_ANONYMOUS 0x20
+
 ; fiber stack meta memory layout:
 ;
 ; 8 [ empty		      ]
@@ -118,4 +124,29 @@ define fiber_yield
 define fiber_self
 	mov rax, [rdi + 8]
 	ret
-	
+
+
+define fiber_hijack
+	sub rsp, 8
+
+	; dynamically allocate memory for fiber struct as
+	; we cannot interfere with the main process stack 
+	xor rdi, rdi
+	mov rsi, 0x1000
+	mov rdx, PROT_READ | PROT_WRITE
+	mov r10, MAP_PRIVATE | MAP_ANONYMOUS
+	mov r8,	-1
+	xor r9, r9
+
+	mov rax, 9
+	syscall
+
+	cmp rax, -1
+	je .done
+
+	; @todo - configure a usable fiber 
+	; for the existing call stack
+.done:
+	add rsp, 8
+	ret
+

@@ -23,15 +23,11 @@ int spindle_do(struct spindle *s, struct job j);
 void spindle_loop(struct spindle *s);
 
 /* assimilates the current stack and execution context, */
-/* returning a spindle which owns the current process */
+/* returning a spindle which owns the current call stack */
 /* as an asynchronous job */
 struct spindle *spindle_hijack();
 
-/* notes to self - as our hijack routine returns the spindle, */
-/* we can place it at the top of the stack of main() or any async-able */
-/* routine before anything else is placed on the stack.  */
-/**/
-/* that allows us to pinch the return address and stack without  */
-/* preventing library users from adding to the stack their own data. */
+void spindle_release(struct spindle *s);
 
 #endif
+
