@@ -86,8 +86,10 @@ define fiber_run
 	pop rbp
 	ret
 .continue:
-	; update return addr to latest fiber_run()
+	; usually fiber_yield.continue
 	mov rsi, [rdi + fiber.rip]
+
+	; update return addr to latest fiber_run()
 	mov rdx, [rsp]
 	mov [rdi + fiber.rip], rdx
 	jmp rsi
@@ -126,6 +128,14 @@ define fiber_self
 	ret
 
 
+; could this routine take a pointer argument to another fiber,
+; whose own task we defer to when calling yield on this new task?
+; 
+; so configure new fiber to 'run' the passed fiber on yield
+; - how do we setup fiber.rip & fiber.rsp in this scenario?
+; 
+; then fiber_yield can be changed to test fiber.rip for non-zero,
+; and return early if zero.
 define fiber_hijack
 	sub rsp, 8
 
@@ -144,8 +154,6 @@ define fiber_hijack
 	cmp rax, -1
 	je .fail
 
-	; @todo - configure a usable fiber 
-	; for the existing call stack
 	mov qword [rax + fiber.size], -1 
 	mov qword [rax + fiber.flags], FIBER_READY | FIBER_RUNNING
 	mov qword [rax + fiber.stack], rsp
