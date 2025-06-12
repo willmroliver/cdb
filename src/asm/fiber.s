@@ -138,6 +138,7 @@ define fiber_self
 ; and return early if zero.
 define fiber_hijack
 	sub rsp, 8
+	mov r12, rdi
 
 	; dynamically allocate memory for fiber struct as
 	; we cannot interfere with the main process stack 
@@ -158,10 +159,21 @@ define fiber_hijack
 	mov qword [rax + fiber.flags], FIBER_READY | FIBER_RUNNING
 	mov qword [rax + fiber.stack], rsp
 	mov qword [rax + fiber.meta], 0
-	mov qword [rax + fiber.rip], 0
-	mov qword [rax + fiber.rsp], 0
 	mov qword [rax + fiber.job_proc], 0 
 	mov qword [rax + fiber.job_arg], 0
+
+	; if not null, we immediately run another fiber,
+	; passing across this one via fiber.meta
+	mov rdi, r12
+	test rdi, rdi
+	jz .null
+
+	mov rsi, [rdi + fiber.meta]
+	mov [rsi + 24], rdi
+	jmpdef fiber_run
+.null:
+	mov qword [rax + fiber.rip], 0
+	mov qword [rax + fiber.rsp], 0
 	jmp .done
 .fail:
 	xor rax, rax

@@ -21,6 +21,8 @@ int fiber_recurring_test();
 
 /* --- UNIT TESTS --- */
 
+int fiber_hijack_null_test();
+
 int fiber_hijack_test();
 
 int main() 
@@ -29,6 +31,7 @@ int main()
 		fiber_run_yield_run_test() &&
 		fiber_many_share_mem_test() &&
 		fiber_recurring_test() &&
+		fiber_hijack_null_test() &&
 		fiber_hijack_test();
 
 	printf(passed ? "fiber tests passed\n" : "fiber tests failed\n");
@@ -116,9 +119,9 @@ int fiber_recurring_test()
 
 /* --- UNIT TESTS --- */
 
-int fiber_hijack_test()
+int fiber_hijack_null_test()
 {
-	fiber_t *f = fiber_hijack();
+	fiber_t *f = fiber_hijack(NULL);
 
 	return f != NULL && 
 		f->size == (uint64_t)-1 &&
@@ -129,6 +132,28 @@ int fiber_hijack_test()
 		f->rsp == NULL &&
 		f->job.proc == NULL &&
 		f->job.arg == NULL;
+}
+
+int fiber_hijack_test()
+{
+	int i = 0;
+	fiber_t f, *g;
+
+	struct job j = {
+		.proc=counter_job,
+		.arg=&i,
+	};
+
+	fiber_init(&f, 1024);
+	fiber_do(&f, j);
+
+	g = fiber_hijack(&f);
+
+	if (i != 1) {
+		return 0;
+	}
+
+	return g == NULL;
 }
 
 /* --- HELPERS --- */

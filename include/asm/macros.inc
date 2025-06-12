@@ -19,6 +19,15 @@
 	%endif
 %endmacro
 
+; portably jmp to 'defined' routines
+%macro jmpdef 1
+	%ifdef __MACH__
+		jmp _%1
+	%else
+		call %1
+	%endif
+%endmacro
+
 ; PI extern call
 %macro externcall 1
 	%ifdef __MACH__
