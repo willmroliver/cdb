@@ -8,6 +8,8 @@ bits 64
 %define FIBER_YIELDED	  0x04
 %define FIBER_DONE	  0x08
 %define FIBER_RECURRING	  0x10
+%define FIBER_HIJACKER	  0x20
+%define FIBER_PARENT	  0x40
 
 %define PROT_READ   0x1
 %define PROT_WRITE  0x2
@@ -17,10 +19,10 @@ bits 64
 
 ; fiber stack meta memory layout:
 ;
-; 8 [ empty		      ]
-; 8 [ caller's stack pointer  ]
-; 8 [ fiber pointer	      ]
-; 8 [ fiber job argument      ]
+; 8 [ parent fiber (if exists)	]
+; 8 [ caller's stack pointer	]
+; 8 [ fiber pointer		]
+; 8 [ fiber job argument	]
 ;
 ; above is in decending order, or ascending from job_arg,
 ; allowing us to use job_arg as the anchor for finding
@@ -29,11 +31,19 @@ bits 64
 section .text
 
 define fiber_run
-	; if not ready or done, ret
 	mov rsi, qword [rdi + fiber.flags]
-	and rsi, (FIBER_READY) | (FIBER_DONE)
-	cmp rsi, FIBER_READY
-	je .init
+	test rsi, FIBER_HIJACKER
+	jz .ready
+
+	mov rdi, [rdi + fiber.meta_fiber]
+	sub rsp, 8
+	calldef fiber_yield
+	add rsp, 8
+	ret
+.ready:
+	; if not READY, return
+	test rsi, FIBER_READY & ~FIBER_DONE
+	jnz .init
 	ret
 .init:
 	; if set, return to where we yielded
@@ -48,18 +58,22 @@ define fiber_run
 	add rsp, [rdi + fiber.size]
 	sub rsp, 8
 	and rsp, -16
-	
-	; allocate space for void *arg & fiber pointer
-	sub rsp, 32
-	mov [rsp + 16], rbp
-	mov [rsp + 8], rdi
-	mov rcx, [rdi + fiber.job_arg]
-	mov [rsp], rcx
-	mov [rdi + fiber.meta], rsp
+
+	; configure fiber meta
+	mov qword [rdi + fiber.meta_fiber], 0	    
+	mov [rdi + fiber.meta_stack], rbp
+	mov [rdi + fiber.meta_self], rdi
+
+	; caller's job arg
+	mov rcx, [rdi + fiber.job_arg]		
+	mov [rdi + fiber.meta_arg], rcx
 .run:
 	; set fiber.rip to return address of this routine call
 	mov rcx, [rbp + 8]
 	mov [rdi + fiber.rip], rcx
+
+	push rdi
+	sub rsp, 8
 
 	; do job 
 	lea rax, [rel .done]
@@ -68,11 +82,12 @@ define fiber_run
 	or qword [rdi + fiber.flags], FIBER_RUNNING
 
 	; pseudo call
-	lea rdi, [rsp + 8]
+	lea rdi, [rax + fiber.meta_arg]
 	jmp [rax + fiber.job_proc]
 .done:
 	; if recurring, re-run
-	mov rdi, [rsp + 8]
+	add rsp, 8
+	pop rdi
 	mov rsi, [rdi + fiber.flags]
 	and rsi, FIBER_RECURRING
 	test rsi, rsi
@@ -96,6 +111,18 @@ define fiber_run
 
 
 define fiber_yield
+	; is this the 'hijacker'?	
+	mov rsi, [rdi + fiber.flags]
+	test rsi, FIBER_HIJACKER
+	jz .yield
+
+	; if yielding 'hijacker', simply run 'parent'
+	mov rdi, [rdi + fiber.meta_fiber]
+	sub rsp, 8
+	calldef fiber_run
+	add rsp, 8
+	ret
+.yield:
 	mov rsi, [rdi + fiber.rip]    ; fiber_run return addr 
 	pushcallee
 
@@ -105,8 +132,7 @@ define fiber_yield
 
 	or qword [rdi + fiber.flags], FIBER_YIELDED
 
-	mov rdx, [rdi + fiber.meta]
-	mov rsp, [rdx + 16]	      ; original stack in meta
+	mov rsp, [rdi + fiber.meta_stack]
 	pop rbp
 
 	add rsp, 8		      ; pseudo ret
@@ -137,8 +163,8 @@ define fiber_self
 ; then fiber_yield can be changed to test fiber.rip for non-zero,
 ; and return early if zero.
 define fiber_hijack
-	sub rsp, 8
-	mov r12, rdi
+	sub rsp, 24
+	mov [rsp + 8], rdi
 
 	; dynamically allocate memory for fiber struct as
 	; we cannot interfere with the main process stack 
@@ -156,21 +182,27 @@ define fiber_hijack
 	je .fail
 
 	mov qword [rax + fiber.size], -1 
-	mov qword [rax + fiber.flags], FIBER_READY | FIBER_RUNNING
+	mov qword [rax + fiber.flags], FIBER_HIJACKER 
 	mov qword [rax + fiber.stack], rsp
-	mov qword [rax + fiber.meta], 0
 	mov qword [rax + fiber.job_proc], 0 
 	mov qword [rax + fiber.job_arg], 0
 
-	; if not null, we immediately run another fiber,
-	; passing across this one via fiber.meta
-	mov rdi, r12
+	mov rdi, [rsp + 8]
 	test rdi, rdi
 	jz .null
 
-	mov rsi, [rdi + fiber.meta]
-	mov [rsi + 24], rdi
-	jmpdef fiber_run
+	or qword [rax + fiber.flags], FIBER_HIJACKER 
+
+	; configure hijacker meta
+	mov [rax + fiber.meta_fiber], rdi ; set parent fiber in meta
+	mov [rax + fiber.meta_stack], rbp		  
+	mov [rax + fiber.meta_self],  rax ; pointer to self
+	mov qword [rax + fiber.meta_arg], 0
+
+	; update parent
+	mov [rdi + fiber.meta_fiber], rax	    ; pointer to hijacker
+	or qword [rdi + fiber.flags], FIBER_PARENT
+	jmp .done
 .null:
 	mov qword [rax + fiber.rip], 0
 	mov qword [rax + fiber.rsp], 0
@@ -178,6 +210,6 @@ define fiber_hijack
 .fail:
 	xor rax, rax
 .done:
-	add rsp, 8
+	add rsp, 24
 	ret
 

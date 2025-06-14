@@ -1,13 +1,14 @@
 #include "sched/fiber.h"
 
 #include <stdlib.h>
+#include <string.h>
 
 void fiber_init(fiber_t *f, uint32_t size16)
 {
+	memset(f->meta, 0, sizeof(f->meta));
 	f->size = 16 * size16;
 	f->flags = 0;
 	f->stack = size16 ? malloc(16 * size16) : NULL;
-	f->meta = 0;
 	f->rip = 0;
 	f->rsp = (char*)f->stack + f->size - 8;
 }

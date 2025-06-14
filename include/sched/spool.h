@@ -1,5 +1,5 @@
-#ifndef INC_SCHED_FUTEX_H
-#define INC_SCHED_FUTEX_H
+#ifndef INC_SCHED_SPOOL_H
+#define INC_SCHED_SPOOL_H
 
 #include "fiber.h"
 

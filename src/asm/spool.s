@@ -14,7 +14,6 @@ externdef fiber_yield
 
 section .text
 
-
 define spool_try
 	lock bts qword [rdi], 0
 	jnc .success

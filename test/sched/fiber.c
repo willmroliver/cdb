@@ -123,15 +123,16 @@ int fiber_hijack_null_test()
 {
 	fiber_t *f = fiber_hijack(NULL);
 
-	return f != NULL && 
-		f->size == (uint64_t)-1 &&
-		fiber_flags_test(f, FIBER_READY) &&
-		fiber_flags_test(f, FIBER_RUNNING) &&
-		f->meta == NULL &&
-		f->rip == NULL &&
-		f->rsp == NULL &&
-		f->job.proc == NULL &&
-		f->job.arg == NULL;
+	assert(f != NULL);
+	assert(f->size == (uint64_t)-1);
+	assert(fiber_flags_test(f, FIBER_HIJACKER));
+	assert(f->meta != NULL);
+	assert(f->rip == NULL);
+	assert(f->rsp == NULL);
+	assert(f->job.proc == NULL);
+	assert(f->job.arg == NULL);
+
+	return 1;
 }
 
 int fiber_hijack_test()
@@ -146,14 +147,18 @@ int fiber_hijack_test()
 
 	fiber_init(&f, 1024);
 	fiber_do(&f, j);
+	fiber_set_recurring(&f, 1);
 
 	g = fiber_hijack(&f);
+	fiber_yield(g);
 
 	if (i != 1) {
 		return 0;
 	}
 
-	return g == NULL;
+	fiber_yield(g);
+
+	return i == 3;
 }
 
 /* --- HELPERS --- */

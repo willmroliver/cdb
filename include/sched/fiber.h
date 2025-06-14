@@ -11,15 +11,17 @@
 #define FIBER_YIELDED	  0x04	/* fiber has yielded mid-job	    */
 #define FIBER_DONE	  0x08	/* fiber finished job execution	    */
 #define FIBER_RECURRING	  0x10	/* fiber restarts job on completion */
+#define FIBER_HIJACKER	  0x20  /* fiber is 'hijacker' of main proc */
+#define FIBER_PARENT	  0x40	/* fiber is 'parent' to 'hijacker'  */
 
 /* fiber_t represents a unit of resource to execute work co-operatively */
 /**/
 /* most of these fields should not be directly manipulated in C */
 typedef struct __attribute__((packed)) {
+	uint64_t meta[4];
 	uint64_t size;
 	uint64_t flags;
 	void *stack;
-	void *meta;
 	void *rip;
 	void *rsp;
 	struct job job;
