@@ -1,4 +1,4 @@
-#include "sched/spool.h"
+#include "spool.h"
 
 #include <string.h>
 #include <stdint.h>

@@ -1,4 +1,4 @@
-#include "sched/spindle.h"
+#include "spindle.h"
 
 #include <stdlib.h>
 

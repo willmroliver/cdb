@@ -1,5 +1,5 @@
-#include "sched/spindle.h"
-#include "sched/promise.h"
+#include "spindle.h"
+#include "promise.h"
 
 #include <stdio.h>
 #include <assert.h>

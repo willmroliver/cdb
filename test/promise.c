@@ -1,4 +1,4 @@
-#include "sched/promise.h"
+#include "promise.h"
 #include "fiber.h"
 
 #include <assert.h>

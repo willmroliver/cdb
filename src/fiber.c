@@ -1,4 +1,4 @@
-#include "sched/fiber.h"
+#include "fiber.h"
 
 #include <stdlib.h>
 #include <string.h>

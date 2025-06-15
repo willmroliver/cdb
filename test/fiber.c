@@ -1,5 +1,5 @@
-#include "sched/fiber.h"
-#include "sched/job.h"
+#include "fiber.h"
+#include "job.h"
 
 #include <assert.h>
 #include <stdio.h>
