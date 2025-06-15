@@ -19,13 +19,12 @@ bits 64
 
 ; fiber stack meta memory layout:
 ;
-; 8 [ parent fiber (if exists)	]
-; 8 [ caller's stack pointer	]
-; 8 [ fiber pointer		]
 ; 8 [ fiber job argument	]
+; 8 [ fiber pointer		]
+; 8 [ caller's stack pointer	]
+; 8 [ parent fiber (if exists)	]
 ;
-; above is in decending order, or ascending from job_arg,
-; allowing us to use job_arg as the anchor for finding
+; importantly, it allows us to use job_arg as the anchor for finding
 ; the meta (so long as it is passed to internal fiber routines).
 
 section .text
@@ -41,9 +40,10 @@ define fiber_run
 	add rsp, 8
 	ret
 .ready:
-	; if not READY, return
-	test rsi, FIBER_READY & ~FIBER_DONE
-	jnz .init
+	; if not READY, or DONE, return
+	and rsi, FIBER_READY | FIBER_DONE
+	cmp rsi, FIBER_READY
+	je .init
 	ret
 .init:
 	; if set, return to where we yielded
@@ -154,62 +154,43 @@ define fiber_self
 	ret
 
 
-; could this routine take a pointer argument to another fiber,
-; whose own task we defer to when calling yield on this new task?
-; 
-; so configure new fiber to 'run' the passed fiber on yield
-; - how do we setup fiber.rip & fiber.rsp in this scenario?
-; 
-; then fiber_yield can be changed to test fiber.rip for non-zero,
-; and return early if zero.
+; we take a pointer argument to another fiber,
+; whose own task we defer to when calling yield
+;
+; this is elegantly handled by redefining 'yield'
+; and 'run' on the hijacker thread
+;
+; yield(hijacker) == run(parent)
+; run(hijacker) == yield(parent)
+;
+; the only real limitation to this approach is
+; that fiber_run() can only be called on the 
+; hijacker from the parent job_proc.
 define fiber_hijack
-	sub rsp, 24
-	mov [rsp + 8], rdi
+	mov qword [rdi + fiber.size], -1 
+	mov qword [rdi + fiber.flags], FIBER_HIJACKER 
+	mov qword [rdi + fiber.stack], rsp
+	mov qword [rdi + fiber.job_proc], 0 
+	mov qword [rdi + fiber.job_arg], 0
+	mov qword [rdi + fiber.meta_arg], 0
+	mov qword [rdi + fiber.meta_self], rdi
 
-	; dynamically allocate memory for fiber struct as
-	; we cannot interfere with the main process stack 
-	xor rdi, rdi
-	mov rsi, 0x1000
-	mov rdx, PROT_READ | PROT_WRITE
-	mov r10, MAP_PRIVATE | MAP_ANONYMOUS
-	mov r8,	-1
-	xor r9, r9
-
-	mov rax, 9
-	syscall
-
-	cmp rax, -1
-	je .fail
-
-	mov qword [rax + fiber.size], -1 
-	mov qword [rax + fiber.flags], FIBER_HIJACKER 
-	mov qword [rax + fiber.stack], rsp
-	mov qword [rax + fiber.job_proc], 0 
-	mov qword [rax + fiber.job_arg], 0
-
-	mov rdi, [rsp + 8]
-	test rdi, rdi
+	test rsi, rsi
 	jz .null
 
-	or qword [rax + fiber.flags], FIBER_HIJACKER 
-
 	; configure hijacker meta
-	mov [rax + fiber.meta_fiber], rdi ; set parent fiber in meta
-	mov [rax + fiber.meta_stack], rbp		  
-	mov [rax + fiber.meta_self],  rax ; pointer to self
-	mov qword [rax + fiber.meta_arg], 0
+	mov [rdi + fiber.meta_fiber], rsi ; set parent fiber in meta
+	mov [rdi + fiber.meta_stack], rbp		  
 
 	; update parent
-	mov [rdi + fiber.meta_fiber], rax	    ; pointer to hijacker
-	or qword [rdi + fiber.flags], FIBER_PARENT
+	mov [rsi + fiber.meta_fiber], rdi	    ; pointer to hijacker
+	or qword [rsi + fiber.flags], FIBER_PARENT
 	jmp .done
 .null:
-	mov qword [rax + fiber.rip], 0
-	mov qword [rax + fiber.rsp], 0
-	jmp .done
-.fail:
-	xor rax, rax
+	mov qword [rdi + fiber.meta_fiber], 0
+	mov qword [rdi + fiber.meta_stack], 0
+	mov qword [rdi + fiber.rip], 0
+	mov qword [rdi + fiber.rsp], 0
 .done:
-	add rsp, 24
 	ret
 

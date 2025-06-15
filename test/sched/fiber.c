@@ -121,16 +121,17 @@ int fiber_recurring_test()
 
 int fiber_hijack_null_test()
 {
-	fiber_t *f = fiber_hijack(NULL);
+	fiber_t f;
 
-	assert(f != NULL);
-	assert(f->size == (uint64_t)-1);
-	assert(fiber_flags_test(f, FIBER_HIJACKER));
-	assert(f->meta != NULL);
-	assert(f->rip == NULL);
-	assert(f->rsp == NULL);
-	assert(f->job.proc == NULL);
-	assert(f->job.arg == NULL);
+	fiber_hijack(&f, NULL);
+
+	assert(f.size == (uint64_t)-1);
+	assert(fiber_flags_test(&f, FIBER_HIJACKER));
+	assert(f.meta != NULL);
+	assert(f.rip == NULL);
+	assert(f.rsp == NULL);
+	assert(f.job.proc == NULL);
+	assert(f.job.arg == NULL);
 
 	return 1;
 }
@@ -138,25 +139,25 @@ int fiber_hijack_null_test()
 int fiber_hijack_test()
 {
 	int i = 0;
-	fiber_t f, *g;
+	fiber_t f, p;
 
 	struct job j = {
 		.proc=counter_job,
 		.arg=&i,
 	};
 
-	fiber_init(&f, 1024);
-	fiber_do(&f, j);
-	fiber_set_recurring(&f, 1);
+	fiber_init(&p, 1024);
+	fiber_do(&p, j);
+	fiber_set_recurring(&p, 1);
 
-	g = fiber_hijack(&f);
-	fiber_yield(g);
+	fiber_hijack(&f, &p);
+	fiber_yield(&f);
 
 	if (i != 1) {
 		return 0;
 	}
 
-	fiber_yield(g);
+	fiber_yield(&f);
 
 	return i == 3;
 }

@@ -45,7 +45,7 @@ extern void fiber_yield(fiber_t *f);
 
 extern fiber_t *fiber_self(void *arg);
 
-extern fiber_t *fiber_hijack(fiber_t *f);
+extern fiber_t *fiber_hijack(fiber_t *f, fiber_t *p);
 
 /* --- ASM METHODS END --- */
 
